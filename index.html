@@ -153,6 +153,7 @@ body.light .confirmed-row{background:rgba(20,100,40,.08)!important;}
 .bt{background:var(--slot-two);color:#5ea0d8;border:1px solid var(--slot-two-b);}
 .bg{background:var(--slot-grp);color:#9070d0;border:1px solid var(--slot-grp-b);}
 .bb{background:var(--slot-blk);color:#c06060;border:1px solid var(--slot-blk-b);}
+.bp{background:rgba(244,160,42,.15);color:#f4a02a;border:1px solid rgba(244,160,42,.35);}
 .bo{background:var(--navy3);color:var(--text-dim);border:1px solid transparent;}
 .bc-ok{background:var(--green-l);color:var(--green-t);border:1px solid var(--green);}
 .sinfo{flex:1;min-width:0;}
@@ -1467,6 +1468,42 @@ let allRequests=[],dbLoaded=false,coachMode=false;
 async function loadAll(){try{const res=await api(`${REQUESTS}?select=*&order=submitted_at.desc`);const rows=await res.json();allRequests=Array.isArray(rows)?rows:[];dbLoaded=true;}catch(e){console.error("Load error",e);}}
 function bySlot(key,status){return allRequests.filter(r=>r.slot_key===key&&r.status===status);}
 
+// Parse a time range string like "5:00 – 6:00 PM" or "10:30 – 11:40 AM" into start/end minutes since midnight
+function parseTimeRangeMinutes(str){
+  if(!str)return null;
+  const parts=str.split(/\s*[\u2013\u2014\-]\s*/);
+  if(parts.length<2)return null;
+  const meridiems=[...str.matchAll(/(AM|PM)/gi)].map(m=>m[1].toUpperCase());
+  const lastMeridiem=meridiems[meridiems.length-1]||"AM";
+  const toMin=(part,fallbackMeridiem)=>{
+    const m=part.match(/(\d+):(\d+)/);if(!m)return null;
+    let h=parseInt(m[1]),min=parseInt(m[2]);
+    const ownMeridiem=(part.match(/(AM|PM)/i)||[])[1];
+    const mer=(ownMeridiem||fallbackMeridiem).toUpperCase();
+    if(mer==="PM"&&h!==12)h+=12;
+    if(mer==="AM"&&h===12)h=0;
+    return h*60+min;
+  };
+  const start=toMin(parts[0],meridiems[0]||lastMeridiem);
+  const end=toMin(parts[1],lastMeridiem);
+  if(start==null||end==null)return null;
+  return{start,end};
+}
+// Get all non-rejected bookings on a given date whose time overlaps the given slot's time range
+function getOverlappingBookings(dd,slotTimeStr,statusFilter){
+  const target=parseTimeRangeMinutes(slotTimeStr);
+  if(!target)return[];
+  return allRequests.filter(r=>{
+    if(!r.slot_key||!r.slot_key.startsWith(dd+"_"))return false;
+    if(r.slot_id==="CUSTOM")return false;
+    if(statusFilter&&r.status!==statusFilter)return false;
+    if(!statusFilter&&r.status==="rejected")return false;
+    const range=parseTimeRangeMinutes(r.slot_time);
+    if(!range)return false;
+    return range.start<target.end&&range.end>target.start; // overlap test
+  });
+}
+
 // WEEKS
 const weeks=[];let wk="2026-06-01";
 while(wk<="2026-08-17"){const sat=addDays(wk,5);weeks.push({mon:wk,lbl:`${fmt(wk)} – ${fmt(sat)}`});wk=addDays(wk,7);}
@@ -1499,8 +1536,10 @@ async function renderWeek(idx){
       const row=document.createElement("div");row.className="slot-row";
       const key=`${dd}_${sl.id}`;
       const cap=1; // All slots are 1-hour open blocks, capacity 1
-      const confirmed=bySlot(key,"confirmed");const pending=bySlot(key,"pending");
+      const confirmed=getOverlappingBookings(dd,sl.time,"confirmed");
+      const pending=getOverlappingBookings(dd,sl.time,"pending");
       const isFull=confirmed.length>=cap;
+      const isPendingHold=!isFull&&pending.length>=cap; // pending request already holds this slot
       const firstLevel=confirmed[0]?.skill_level||"";
       let bc=sl.bc,pill="",extra="",open=false;
       const reason=getBlocked(sl.id,di,w.mon);
@@ -1512,6 +1551,12 @@ async function renderWeek(idx){
         if(firstLevel)extra+=levelBadge(firstLevel);
         row.className+=" confirmed-row tappable";
         row.addEventListener("click",()=>openPayPrompt(confirmed,sl,dd));
+      }else if(isPendingHold){
+        bc="bp";
+        pill=`<span class="spill" style="background:rgba(244,160,42,.18);color:#f4a02a;">⏳ Pending</span>`;
+        extra=`<div style="font-size:11px;color:#f4a02a;font-weight:700;margin-top:2px;">Request pending — awaiting coach confirmation</div>`;
+        row.className+=" pending-row";
+        row.addEventListener("click",()=>alert(`This slot has a pending request from ${pending[0].player_name} awaiting Coach Jason's confirmation. Please check back soon or choose another slot.`));
       }else{
         open=true;row.className+=" open";
         pill=`<span class="spill p-open">OPEN</span>`;
@@ -1542,7 +1587,14 @@ async function renderWeek(idx){
     const legacyBookings=allRequests.filter(r=>{
       if(!r.slot_key||!r.slot_key.startsWith(dd))return false;
       if(r.status==="rejected"||r.slot_id==="CUSTOM")return false;
-      return !currentIds.includes(r.slot_id);
+      if(currentIds.includes(r.slot_id))return false;
+      // Skip if this legacy booking's time already overlaps a standard slot (it's shown there instead)
+      const overlapsStandard=slots.some(sl=>{
+        const range=parseTimeRangeMinutes(r.slot_time);const target=parseTimeRangeMinutes(sl.time);
+        if(!range||!target)return false;
+        return range.start<target.end&&range.end>target.start;
+      });
+      return !overlapsStandard;
     });
     // Group by slot_id
     const legacyBySlot={};
@@ -1740,6 +1792,16 @@ async function submitForm(){
   if(!v("fName")||!v("fAge")||!v("fParent")||!v("fPhone")||!v("fEmail")){alert("Please fill in all required fields.");return;}
   const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Sending…";
   const{sl,day,dd}=cur;const key=`${dd}_${sl.id}`;
+  // Safety check: re-verify slot is still open before submitting (prevents race-condition double bookings)
+  await loadAll();
+  const stillAvailable=getOverlappingBookings(dd,sl.time,"confirmed").length===0&&getOverlappingBookings(dd,sl.time,"pending").length===0;
+  if(!stillAvailable){
+    btn.disabled=false;btn.textContent="Send Booking Request";
+    alert("Sorry, this slot was just booked or requested by someone else. Please choose another time.");
+    closeModal();
+    renderWeek(+document.getElementById("weekSelect").value);
+    return;
+  }
     const actualTime=sl.time;
   const actualPrice="";
   const actualLabel="1 Hour Session";
