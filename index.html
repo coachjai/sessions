@@ -398,7 +398,24 @@ body.light .cancel-policy-row{color:#9a3412;}
     </div>
     <button onclick="openCustomModal()" class="holo-btn" style="flex-shrink:0;padding:9px 14px;border-radius:var(--r);font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;">⏰ Custom Time</button>
   </div>
-  <select class="week-select" id="weekSelect" onchange="renderWeek(+this.value)"></select>
+  <div id="calendarWidget" style="background:var(--card-bg);border:1px solid var(--navy3);border-radius:var(--rm);margin-bottom:14px;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--navy3);">
+      <button onclick="calNav(-1)" style="background:none;border:none;color:var(--orange);font-size:20px;cursor:pointer;padding:4px 10px;border-radius:6px;">&#8249;</button>
+      <div id="calMonthLabel" style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--white);"></div>
+      <button onclick="calNav(1)" style="background:none;border:none;color:var(--orange);font-size:20px;cursor:pointer;padding:4px 10px;border-radius:6px;">&#8250;</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:6px 8px 2px;">
+      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-dim);padding:4px 0;">SUN</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-dim);padding:4px 0;">MON</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-dim);padding:4px 0;">TUE</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-dim);padding:4px 0;">WED</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-dim);padding:4px 0;">THU</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-dim);padding:4px 0;">FRI</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-dim);padding:4px 0;">SAT</div>
+    </div>
+    <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:0 8px 10px;gap:2px;"></div>
+  </div>
+  <input type="hidden" id="weekSelect" value="0"/>
   <div id="weekContent"></div>
 </div></div>
 
@@ -424,11 +441,11 @@ body.light .cancel-policy-row{color:#9a3412;}
       <div style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;margin-bottom:6px;color:var(--white);">Coach Login</div>
       <div style="font-size:13px;color:var(--text-mid);margin-bottom:20px;">Select your profile</div>
       <div id="coachPicker" style="display:flex;gap:12px;justify-content:center;margin-bottom:20px;">
-        <button onclick="selectCoachLogin('jason')" style="flex:1;padding:14px 10px;background:var(--surface2);border:2px solid transparent;border-radius:10px;cursor:pointer;transition:border-color .2s;" id="pickJason">
+        <button onclick="selectCoachLogin('jason')" style="flex:1;padding:14px 10px;background:var(--navy3);border:2px solid transparent;border-radius:10px;cursor:pointer;transition:border-color .2s;" id="pickJason">
           <div style="font-size:28px;margin-bottom:4px;">👨‍🏫</div>
           <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:var(--white);">Coach Jason</div>
         </button>
-        <button onclick="selectCoachLogin('ciri')" style="flex:1;padding:14px 10px;background:var(--surface2);border:2px solid transparent;border-radius:10px;cursor:pointer;transition:border-color .2s;" id="pickCiri">
+        <button onclick="selectCoachLogin('ciri')" style="flex:1;padding:14px 10px;background:var(--navy3);border:2px solid transparent;border-radius:10px;cursor:pointer;transition:border-color .2s;" id="pickCiri">
           <div style="font-size:28px;margin-bottom:4px;">👩‍🏫</div>
           <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:var(--white);">Coach Ciri</div>
         </button>
@@ -467,19 +484,19 @@ body.light .cancel-policy-row{color:#9a3412;}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
         <div>
           <label style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-mid);display:block;margin-bottom:4px;">Individual (min)</label>
-          <input type="number" id="durIndividual" min="15" max="120" step="5" style="width:100%;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:15px;text-align:center;" oninput="previewDurations()"/>
+          <input type="number" id="durIndividual" min="15" max="120" step="5" style="width:100%;padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:15px;text-align:center;" oninput="previewDurations()"/>
         </div>
         <div>
           <label style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-mid);display:block;margin-bottom:4px;">2-Player (min)</label>
-          <input type="number" id="durTwo" min="15" max="120" step="5" style="width:100%;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:15px;text-align:center;" oninput="previewDurations()"/>
+          <input type="number" id="durTwo" min="15" max="120" step="5" style="width:100%;padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:15px;text-align:center;" oninput="previewDurations()"/>
         </div>
         <div>
           <label style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-mid);display:block;margin-bottom:4px;">Family (min)</label>
-          <input type="number" id="durFamily" min="15" max="120" step="5" style="width:100%;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:15px;text-align:center;" oninput="previewDurations()"/>
+          <input type="number" id="durFamily" min="15" max="120" step="5" style="width:100%;padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:15px;text-align:center;" oninput="previewDurations()"/>
         </div>
         <div>
           <label style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-mid);display:block;margin-bottom:4px;">Group (min)</label>
-          <input type="number" id="durGroup" min="15" max="120" step="5" style="width:100%;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:15px;text-align:center;" oninput="previewDurations()"/>
+          <input type="number" id="durGroup" min="15" max="120" step="5" style="width:100%;padding:8px 10px;background:var(--navy3);border:1px solid var(--border);border-radius:6px;color:var(--white);font-size:15px;text-align:center;" oninput="previewDurations()"/>
         </div>
       </div>
       <div id="durPreview" style="font-size:12px;color:var(--text-mid);margin-bottom:14px;min-height:16px;"></div>
@@ -656,12 +673,12 @@ body.light .cancel-policy-row{color:#9a3412;}
       <div class="field" id="coachSelectorSection">
         <label>SELECT COACH *</label>
         <div style="display:flex;gap:10px;margin-bottom:4px;">
-          <button type="button" id="coachBtnJason" onclick="selectBookingCoach('jason')" style="flex:1;padding:12px 8px;background:var(--surface2);border:2px solid var(--orange);border-radius:8px;cursor:pointer;text-align:center;transition:border-color .2s;">
+          <button type="button" id="coachBtnJason" onclick="selectBookingCoach('jason')" style="flex:1;padding:12px 8px;background:var(--navy3);border:2px solid var(--orange);border-radius:8px;cursor:pointer;text-align:center;transition:border-color .2s;">
             <div style="font-size:22px;">👨‍🏫</div>
             <div style="font-size:12px;font-weight:600;color:var(--white);margin-top:2px;">Coach Jason</div>
             <div id="jasonAvailBadge" style="font-size:10px;color:var(--green-t);margin-top:2px;">Available</div>
           </button>
-          <button type="button" id="coachBtnCiri" onclick="selectBookingCoach('ciri')" style="flex:1;padding:12px 8px;background:var(--surface2);border:2px solid transparent;border-radius:8px;cursor:pointer;text-align:center;transition:border-color .2s;">
+          <button type="button" id="coachBtnCiri" onclick="selectBookingCoach('ciri')" style="flex:1;padding:12px 8px;background:var(--navy3);border:2px solid transparent;border-radius:8px;cursor:pointer;text-align:center;transition:border-color .2s;">
             <div style="font-size:22px;">👩‍🏫</div>
             <div style="font-size:12px;font-weight:600;color:var(--white);margin-top:2px;">Coach Ciri</div>
             <div id="ciriAvailBadge" style="font-size:10px;color:var(--green-t);margin-top:2px;">Available</div>
@@ -1799,8 +1816,7 @@ function getOverlappingBookings(dd,slotTimeStr,statusFilter,coachFilter=null){
 // WEEKS
 const weeks=[];let wk="2026-11-23";
 while(wk<="2027-08-25"){const sat=addDays(wk,5);weeks.push({mon:wk,lbl:`${fmt(wk)} – ${fmt(sat)}`});wk=addDays(wk,7);}
-const wSel=document.getElementById("weekSelect");
-weeks.forEach((w,i)=>{const o=document.createElement("option");o.value=i;o.textContent=`Week of ${w.lbl}`;wSel.appendChild(o);});
+// Calendar widget handles week display
 
 // RENDER WEEK
 async 
@@ -1829,6 +1845,112 @@ function renderCoachCards(){
   });
   const el=document.getElementById("coachCardsSection");
   if(el) el.innerHTML=html;
+}
+
+
+// ── CALENDAR WIDGET ────────────────────────────────────────────────────
+let calYear=0,calMonth=0,calSelectedDate=null;
+
+function calInit(){
+  const today=new Date();
+  calYear=today.getFullYear();
+  calMonth=today.getMonth();
+  renderCal();
+}
+
+function calNav(dir){
+  calMonth+=dir;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCal();
+}
+
+function renderCal(){
+  const MONTH_NAMES=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const lbl=document.getElementById("calMonthLabel");
+  const grid=document.getElementById("calGrid");
+  if(!lbl||!grid)return;
+  lbl.textContent=`${MONTH_NAMES[calMonth]} ${calYear}`;
+
+  const firstDay=new Date(calYear,calMonth,1).getDay(); // 0=Sun
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date().toISOString().slice(0,10);
+
+  // Build set of active training dates (Mon–Sat within our weeks range)
+  const trainingDates=new Set();
+  const blockedSet=new Set();
+  weeks.forEach(w=>{
+    for(let d=0;d<6;d++){
+      const dd=addDays(w.mon,d);
+      if(dd>=today) trainingDates.add(dd);
+    }
+  });
+  // Mark blocked dates
+  if(typeof blockedDates!=="undefined"){
+    blockedDates.forEach(b=>{if(b.blocked_date)blockedSet.add(b.blocked_date);});
+  }
+
+  let html="";
+  // Leading empty cells
+  for(let i=0;i<firstDay;i++) html+=`<div></div>`;
+
+  for(let d=1;d<=daysInMonth;d++){
+    const mm=String(calMonth+1).padStart(2,"0");
+    const dd2=String(d).padStart(2,"0");
+    const dateStr=`${calYear}-${mm}-${dd2}`;
+    const isTraining=trainingDates.has(dateStr);
+    const isBlocked=blockedSet.has(dateStr);
+    const isPast=dateStr<today;
+    const isSelected=dateStr===calSelectedDate;
+    const isToday=dateStr===today;
+
+    // Find week index for this date
+    let wIdx=-1;
+    for(let i=0;i<weeks.length;i++){
+      const mon=weeks[i].mon;
+      const sat=addDays(mon,5);
+      if(dateStr>=mon&&dateStr<=sat){wIdx=i;break;}
+    }
+
+    let cellStyle="border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative;font-size:12px;font-weight:500;";
+    let dot="";
+    let clickable=false;
+
+    if(isPast||!isTraining){
+      cellStyle+="color:var(--text-dim);opacity:.4;cursor:default;";
+    } else if(isBlocked){
+      cellStyle+="color:var(--red-t);cursor:pointer;";
+      dot=`<span style="position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--red-t);"></span>`;
+      clickable=true;
+    } else {
+      cellStyle+="color:var(--white);cursor:pointer;";
+      dot=`<span style="position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--green-t);"></span>`;
+      clickable=true;
+    }
+
+    if(isSelected){
+      cellStyle+="background:var(--orange);color:#000!important;font-weight:700;";
+      dot="";
+    } else if(isToday&&!isSelected){
+      cellStyle+="border:1.5px solid var(--orange);";
+    }
+
+    const clickAttr=clickable&&wIdx>=0?`onclick="calSelectDate('${dateStr}',${wIdx})"` :"";
+    html+=`<div><div style="${cellStyle}" ${clickAttr}>${d}${dot}</div></div>`;
+  }
+  grid.innerHTML=html;
+}
+
+function calSelectDate(dateStr,wIdx){
+  calSelectedDate=dateStr;
+  renderCal();
+  document.getElementById("weekSelect").value=wIdx;
+  renderWeek(wIdx);
+  // Scroll to the week content
+  setTimeout(()=>{
+    const el=document.getElementById("weekContent");
+    if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+  },100);
 }
 
 async function renderWeek(idx){
@@ -1985,8 +2107,9 @@ async function renderWeek(idx){
   const today=new Date().toISOString().slice(0,10);
   let bestIdx=0;
   for(let i=0;i<weeks.length;i++){if(today<=addDays(weeks[i].mon,5)){bestIdx=i;break;}}
-  document.getElementById("weekSelect").value=bestIdx;renderWeek(bestIdx);
+  document.getElementById("weekSelect").value=bestIdx;calSelectedDate=today;renderWeek(bestIdx);
   renderCoachCards();
+  calInit();
 })();
 
 // ── BOOKING MODAL ─────────────────────────────────────────
