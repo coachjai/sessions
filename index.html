@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Jason Martinez | Summer Training – Houston, TX</title>
+<title>JCT | Junior Champions Train – Houston, TX</title>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -299,6 +299,8 @@ body.light .cancel-policy-row{color:#9a3412;}
 .divider::before,.divider::after{content:"";position:absolute;top:50%;width:40%;height:1px;background:var(--navy3);}
 .divider::before{left:0;}.divider::after{right:0;}
 @media(max-width:380px){.hero-title{font-size:34px;}.fr{grid-template-columns:1fr;}}
+
+.admin-only{} /* shown/hidden via JS based on coach login */
 </style>
 </head>
 <body>
@@ -307,8 +309,9 @@ body.light .cancel-policy-row{color:#9a3412;}
 <div class="hero-body">
   <div class="hero-bg">⚽</div>
   <div class="hero-actions"><button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button></div>
-  <div class="hero-eyebrow">Houston, TX · Starting June 1</div>
-  <div class="hero-title">Summer<br><span>Training</span></div>
+  <div class="hero-eyebrow">Houston, TX · Year-Round Training</div>
+  <div class="hero-title">JCT</div>
+  <div style="font-family:'Oswald',sans-serif;font-size:17px;font-weight:400;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.65);margin-top:-4px;margin-bottom:2px;">Junior Champions Train</div>
   <div class="hero-sub">with Coach <strong>Jason</strong> · Private Sessions · All levels welcome</div>
   <div class="hero-tags">
     <span class="htag">First Touch</span><span class="htag">Dribbling</span><span class="htag">Shooting</span>
@@ -364,7 +367,7 @@ body.light .cancel-policy-row{color:#9a3412;}
     <div class="type-card tc-two">
       <div class="ti">🔵</div>
       <div class="tn">2-Player</div>
-      <div style="font-size:13px;font-weight:700;color:var(--text-mid);margin-top:4px;">⏱ 1 Hour</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text-mid);margin-top:4px;">⏱ 55 Min</div>
       <div style="margin-top:8px;font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:var(--orange);">$40</div>
       <div style="font-size:12px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.5px;">Per Player</div>
     </div>
@@ -387,7 +390,7 @@ body.light .cancel-policy-row{color:#9a3412;}
 <div id="tab-schedule" class="tp"><div class="container">
   <div style="margin-top:4px"></div>
   <div id="scheduleAuthBanner"></div>
-  <div class="alert"><div class="alert-icon">📅</div><div class="alert-text"><strong>Sessions begin Monday, June 1.</strong> Tap any <span style="font-weight:700">OPEN</span> slot to book.</div></div>
+  <div class="alert"><div class="alert-icon">📅</div><div class="alert-text"><strong>JCT Training is now open.</strong> Tap any <span style="font-weight:700">OPEN</span> slot to book.</div></div>
   <div style="padding:14px;background:linear-gradient(135deg,#0d0d1a 0%,#1a0533 100%);border:1px solid rgba(199,125,255,0.35);border-radius:var(--rm);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
     <div>
       <div class="holo-text" style="font-size:14px;font-weight:700;font-family:'Oswald',sans-serif;letter-spacing:.5px;text-transform:uppercase;">Need a different time?</div>
@@ -432,10 +435,24 @@ body.light .cancel-policy-row{color:#9a3412;}
   <div id="pinGate">
     <div class="card" style="text-align:center;padding:28px 20px;">
       <div style="font-size:36px;margin-bottom:12px">🔒</div>
-      <div style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;margin-bottom:6px;color:var(--white);">Coach Access</div>
-      <div style="font-size:13px;color:var(--text-mid);margin-bottom:20px;">Enter your PIN to manage bookings</div>
-      <div class="field"><input type="password" id="pinInput" placeholder="••••" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:6px;" onkeydown="if(event.key==='Enter')checkPin()"/></div>
-      <button class="btn-or" onclick="checkPin()" style="margin-bottom:0">Unlock</button>
+      <div style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;margin-bottom:6px;color:var(--white);">Coach Login</div>
+      <div style="font-size:13px;color:var(--text-mid);margin-bottom:20px;">Select your profile</div>
+      <div id="coachPicker" style="display:flex;gap:12px;justify-content:center;margin-bottom:20px;">
+        <button onclick="selectCoachLogin('jason')" style="flex:1;padding:14px 10px;background:var(--surface2);border:2px solid transparent;border-radius:10px;cursor:pointer;transition:border-color .2s;" id="pickJason">
+          <div style="font-size:28px;margin-bottom:4px;">👨‍🏫</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:var(--white);">Coach Jason</div>
+        </button>
+        <button onclick="selectCoachLogin('ciri')" style="flex:1;padding:14px 10px;background:var(--surface2);border:2px solid transparent;border-radius:10px;cursor:pointer;transition:border-color .2s;" id="pickCiri">
+          <div style="font-size:28px;margin-bottom:4px;">👩‍🏫</div>
+          <div style="font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:var(--white);">Coach Ciri</div>
+        </button>
+      </div>
+      <div id="pinEntryArea" style="display:none;">
+        <div id="selectedCoachLabel" style="font-size:12px;color:var(--orange);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;"></div>
+        <div class="field"><input type="password" id="pinInput" placeholder="••••" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:6px;" onkeydown="if(event.key==='Enter')checkPin()"/></div>
+        <button class="btn-or" onclick="checkPin()" style="margin-bottom:0">Unlock</button>
+        <button onclick="backToCoachPicker()" style="background:none;border:none;color:var(--text-dim);font-size:12px;margin-top:10px;cursor:pointer;display:block;width:100%;text-align:center;">← Back</button>
+      </div>
       <div id="pinError" style="display:none;color:var(--red-t);font-size:12px;margin-top:10px;">Incorrect PIN. Try again.</div>
     </div>
   </div>
@@ -447,7 +464,7 @@ body.light .cancel-policy-row{color:#9a3412;}
     <div class="sh"><h2>Rejected</h2><div class="rule"></div></div>
     <div id="rejectedList"><div style="font-size:13px;color:var(--text-dim);text-align:center;padding:16px;">No rejected requests.</div></div>
 
-    <div class="sh"><h2>Block a Day</h2><div class="rule"></div></div>
+    <div class="sh" id="blockSectionHeader"><h2 id="blockSectionTitle">Block Availability</h2><div class="rule"></div></div>
     <div class="card" style="padding:16px;">
       <div class="fr" style="margin-bottom:12px;">
         <div class="field" style="margin-bottom:0"><label>Date</label><input type="date" id="blockDateInput"/></div>
@@ -457,7 +474,7 @@ body.light .cancel-policy-row{color:#9a3412;}
     </div>
     <div id="blockedDatesList"><div style="font-size:13px;color:var(--text-dim);text-align:center;padding:16px;">No days blocked.</div></div>
 
-    <div class="sh"><h2>Add Phone Booking</h2><div class="rule"></div></div>
+    <div class="admin-only"><div class="sh"><h2>Add Phone Booking</h2><div class="rule"></div></div>
     <div class="card" style="padding:16px;">
       <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px;">Manually add a session for a player who booked by phone. Goes straight to Confirmed.</div>
       <div class="fr">
@@ -468,9 +485,9 @@ body.light .cancel-policy-row{color:#9a3412;}
             <option value="A|9:00 – 10:00 AM">A — 9:00 AM</option>
             <option value="B|10:00 – 11:00 AM">B — 10:00 AM</option>
             <option value="C|11:00 AM – 12:00 PM">C — 11:00 AM</option>
-            <option value="D|12:00 – 1:00 PM">D — 12:00 PM</option>
-            <option value="F|4:00 – 5:00 PM">F — 4:00 PM</option>
-            <option value="G|5:00 – 6:00 PM">G — 5:00 PM</option>
+            <option value="D|2:00 – 3:00 PM">D — 2:00 PM</option>
+            <option value="E|3:00 – 4:00 PM">E — 3:00 PM</option>
+            value="F|4:00 – 5:00 PM">F — 4:00 PM</option>
           </select>
         </div>
       </div>
@@ -604,12 +621,30 @@ body.light .cancel-policy-row{color:#9a3412;}
         </div>
       </div>
 
+      <!-- Coach selector -->
+      <div class="field" id="coachSelectorSection">
+        <label>SELECT COACH *</label>
+        <div style="display:flex;gap:10px;margin-bottom:4px;">
+          <button type="button" id="coachBtnJason" onclick="selectBookingCoach('jason')" style="flex:1;padding:12px 8px;background:var(--surface2);border:2px solid var(--orange);border-radius:8px;cursor:pointer;text-align:center;transition:border-color .2s;">
+            <div style="font-size:22px;">👨‍🏫</div>
+            <div style="font-size:12px;font-weight:600;color:var(--white);margin-top:2px;">Coach Jason</div>
+            <div id="jasonAvailBadge" style="font-size:10px;color:var(--green-t);margin-top:2px;">Available</div>
+          </button>
+          <button type="button" id="coachBtnCiri" onclick="selectBookingCoach('ciri')" style="flex:1;padding:12px 8px;background:var(--surface2);border:2px solid transparent;border-radius:8px;cursor:pointer;text-align:center;transition:border-color .2s;">
+            <div style="font-size:22px;">👩‍🏫</div>
+            <div style="font-size:12px;font-weight:600;color:var(--white);margin-top:2px;">Coach Ciri</div>
+            <div id="ciriAvailBadge" style="font-size:10px;color:var(--green-t);margin-top:2px;">Available</div>
+          </button>
+        </div>
+        <input type="hidden" id="selectedCoachField" value="jason"/>
+      </div>
+
       <!-- Session type (flexible slots) -->
       <div class="field" id="sessionTypeField">
         <label>Session Type *</label>
         <select id="fSessionType" onchange="updateFlexTime()">
           <option value="">Select session type…</option>
-          <option value="individual">Individual (1 hour) — $55</option>
+          <option value="individual">Individual (55 min) — $55</option>
           <option value="two">2-Player (1 hour) — $40 per player</option>
           <option value="family_two">🏷️ Family Discount — $70 total (2 kids, same family)</option>
           <option value="group">Group 4–6 (1 hour) — $30 per player</option>
@@ -732,9 +767,9 @@ body.light .cancel-policy-row{color:#9a3412;}
           <option value="A|9:00 – 10:00 AM|Open|open">A — 9:00 AM</option>
           <option value="B|10:00 – 11:00 AM|Open|open">B — 10:00 AM</option>
           <option value="C|11:00 AM – 12:00 PM|Open|open">C — 11:00 AM</option>
-          <option value="D|12:00 – 1:00 PM|Open|open">D — 12:00 PM</option>
-          <option value="F|4:00 – 5:00 PM|Open|open">F — 4:00 PM</option>
-          <option value="G|5:00 – 6:00 PM|Open|open">G — 5:00 PM</option>
+          <option value="D|12:00 – 1:00 PM|Open|open">D — 2:00 PM</option>
+          <option value="E|3:00 – 4:00 PM">E — 3:00 PM</option>
+            value="F|4:00 – 5:00 PM|Open|open">F — 4:00 PM</option>
         </select>
       </div>
     </div>
@@ -805,6 +840,7 @@ body.light .cancel-policy-row{color:#9a3412;}
       <div><div class="profile-name" id="profileDisplayName">My Account</div><div class="profile-email" id="profileDisplayEmail"></div></div>
     </div>
 
+    </div>
     <div class="sh"><h2>Parent Info</h2><div class="rule"></div></div>
     <div class="fr">
       <div class="field"><label>Your Name</label><input type="text" id="profileParentName" placeholder="Your name"/></div>
@@ -901,6 +937,9 @@ function toggleTheme(){const l=document.body.classList.toggle("light");document.
 const PIN_STORE="jm_coach_pin_v1";
 function getPin(){return localStorage.getItem(PIN_STORE)||"1234";}
 function setPin(p){localStorage.setItem(PIN_STORE,p);}
+const CIRI_PIN_STORE="jm_ciri_pin_v1";
+function getCiriPin(){return localStorage.getItem(CIRI_PIN_STORE)||"5678";}
+function setCiriPin(p){localStorage.setItem(CIRI_PIN_STORE,p);}
 
 // ── AUTH ─────────────────────────────────────────────────
 let currentUser=null,userProfile=null,userAthletes=[],authToken=SUPABASE_KEY;
@@ -1197,7 +1236,14 @@ async function sendConfirmationEmail(r){
 
 // ── SLOT DATA ─────────────────────────────────────────────
 const SLOT_CAPS={individual:1,two:2,flexible:6,group:6};
-const FLEX_TIMES={A:{individual:"9:00 – 10:00 AM",two:"9:00 – 10:00 AM",family_two:"9:00 – 10:00 AM",group:"9:00 – 10:00 AM"},B:{individual:"10:00 – 11:00 AM",two:"10:00 – 11:00 AM",family_two:"10:00 – 11:00 AM",group:"10:00 – 11:00 AM"},C:{individual:"11:00 AM – 12:00 PM",two:"11:00 AM – 12:00 PM",family_two:"11:00 AM – 12:00 PM",group:"11:00 AM – 12:00 PM"},D:{individual:"12:00 – 1:00 PM",two:"12:00 – 1:00 PM",family_two:"12:00 – 1:00 PM",group:"12:00 – 1:00 PM"},F:{individual:"4:00 – 5:00 PM",two:"4:00 – 5:00 PM",family_two:"4:00 – 5:00 PM",group:"4:00 – 5:00 PM"},G:{individual:"5:00 – 6:00 PM",two:"5:00 – 6:00 PM",family_two:"5:00 – 6:00 PM",group:"5:00 – 6:00 PM"}};
+const FLEX_TIMES={
+  A:{individual:"9:00 – 9:55 AM",two:"9:00 – 10:00 AM",family_two:"9:00 – 10:00 AM",group:"9:00 – 10:00 AM"},
+  B:{individual:"10:00 – 10:55 AM",two:"10:00 – 11:00 AM",family_two:"10:00 – 11:00 AM",group:"10:00 – 11:00 AM"},
+  C:{individual:"11:00 – 11:55 AM",two:"11:00 AM – 12:00 PM",family_two:"11:00 AM – 12:00 PM",group:"11:00 AM – 12:00 PM"},
+  D:{individual:"2:00 – 2:55 PM",two:"2:00 – 3:00 PM",family_two:"2:00 – 3:00 PM",group:"2:00 – 3:00 PM"},
+  E:{individual:"3:00 – 3:55 PM",two:"3:00 – 4:00 PM",family_two:"3:00 – 4:00 PM",group:"3:00 – 4:00 PM"},
+  F:{individual:"4:00 – 4:55 PM",two:"4:00 – 5:00 PM",family_two:"4:00 – 5:00 PM",group:"4:00 – 5:00 PM"},
+};
 const SLOT_B_TIMES={none:{individual:"10:00 – 11:00 AM",two:"10:00 – 11:00 AM",family_two:"10:00 – 11:00 AM",group:"10:00 – 11:00 AM"},individual:{individual:"10:00 – 11:00 AM",two:"10:00 – 11:00 AM",family_two:"10:00 – 11:00 AM",group:"10:00 – 11:00 AM"},two:{individual:"10:00 – 11:00 AM",two:"10:00 – 11:00 AM",family_two:"10:00 – 11:00 AM",group:"10:00 – 11:00 AM"},group:{individual:"10:00 – 11:00 AM",two:"10:00 – 11:00 AM",family_two:"10:00 – 11:00 AM",group:"10:00 – 11:00 AM"}};
 const SLOT_B_STARTS={none:"10:00 AM",individual:"10:00 AM",two:"10:00 AM",family_two:"10:00 AM",group:"10:00 AM"};
 function getSlotBTimes(dd){const t=getLockedType(dd+"_A")||"none";return SLOT_B_TIMES[t]||SLOT_B_TIMES.none;}
@@ -1208,18 +1254,18 @@ const TYPE_LABELS={individual:"Individual",two:"2-Player",family_two:"2-Player F
 function expectedPrice(r){const map={individual:55,two:40,family_two:70,group:30};return map[r.session_type]||null;}
 function balanceOwed(r){const exp=expectedPrice(r);if(!exp)return null;const paid=parseFloat(r.payment_amount)||0;return exp-paid;}
 const STANDARD_SLOTS=[
-  {id:"A",time:"9:00 – 10:00 AM",label:"Open",bc:"bi",type:"open",price:""},
-  {id:"B",time:"10:00 – 11:00 AM",label:"Open",bc:"bi",type:"open",price:""},
-  {id:"C",time:"11:00 AM – 12:00 PM",label:"Open",bc:"bt",type:"open",price:""},
-  {id:"D",time:"12:00 – 1:00 PM",label:"Open",bc:"bg",type:"open",price:""},
-  {id:"F",time:"4:00 – 5:00 PM",label:"Open",bc:"bt",type:"open",price:""},
-  {id:"G",time:"5:00 – 6:00 PM",label:"Open",bc:"bg",type:"open",price:""},
+  {id:"A",time:"9:00 AM",label:"Open",bc:"bi",type:"open",price:""},
+  {id:"B",time:"10:00 AM",label:"Open",bc:"bi",type:"open",price:""},
+  {id:"C",time:"11:00 AM",label:"Open",bc:"bt",type:"open",price:""},
+  {id:"D",time:"2:00 PM",label:"Open",bc:"bg",type:"open",price:""},
+  {id:"E",time:"3:00 PM",label:"Open",bc:"bi",type:"open",price:""},
+  {id:"F",time:"4:00 PM",label:"Open",bc:"bt",type:"open",price:""},
 ];
-const CAMP_SLOTS=["F","G"];
+const CAMP_SLOTS=["D","E","F"];
 
 const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const halfDayWeeks=["2026-06-08","2026-06-15","2026-06-29","2026-08-03"];
-const fullDayWeeks=["2026-06-22","2026-07-20","2026-07-27"];
+const fullDayWeeks=[]; // No camp weeks — add dates as needed
 const FIRST="2026-06-01";
 
 function addDays(s,n){const d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
@@ -1337,7 +1383,7 @@ function addToCalendar(r){
   // Build start datetime in local time (no UTC conversion — avoids timezone shift)
   const d=new Date(datePart+"T12:00:00");
   d.setHours(h,m,0,0);
-  const durations={individual:60,two:60,family_two:60,group:60,open:60};
+  const durations={individual:55,two:60,family_two:60,group:60,open:60};
   const dur=durations[r.session_type]||60;
   const end=new Date(d.getTime()+dur*60000);
   // Format as local floating time (no Z suffix — iOS uses device timezone)
@@ -1447,8 +1493,14 @@ async function loadBlockedDates(){
   }catch(e){console.error('loadBlockedDates:',e);}
 }
 
-function getBlockedDate(dd){
-  return blockedDates.find(b=>b.blocked_date===dd)||null;
+function getBlockedDate(dd,checkCoach=null){
+  // A blocked date with coach="ciri" only blocks Ciri; null/undefined blocks all
+  return blockedDates.find(b=>{
+    if(b.blocked_date!==dd) return false;
+    if(!b.coach) return true; // null/undefined = blocks all coaches
+    if(checkCoach) return b.coach===checkCoach;
+    return true;
+  })||null;
 }
 
 async function addBlockedDate(){
@@ -1456,7 +1508,9 @@ async function addBlockedDate(){
   const reason=document.getElementById("blockReasonInput").value.trim();
   if(!date){alert("Please select a date.");return;}
   try{
-    const res=await api("blocked_dates",{method:"POST",body:JSON.stringify({blocked_date:date,reason:reason||"Unavailable"})});
+    const const _bp={blocked_date:date,reason:reason||"Unavailable"};
+    if(currentCoach==="ciri") _bp.coach="ciri";
+    res=await api("blocked_dates",{method:"POST",body:JSON.stringify(_bp)});
     if(!res.ok){const e=await res.json();alert(e?.message||"Could not block date.");return;}
     const saved=await res.json();
     const newEntry=Array.isArray(saved)?saved[0]:{id:Date.now(),blocked_date:date,reason:reason||"Unavailable"};
@@ -1497,6 +1551,7 @@ function renderBlockedDatesList(){
 
 
 let allRequests=[],dbLoaded=false,coachMode=false;
+let currentCoach="jason"; // "jason" or "ciri"
 async function loadAll(){try{const res=await api(`${REQUESTS}?select=*&order=submitted_at.desc`);const rows=await res.json();allRequests=Array.isArray(rows)?rows:[];dbLoaded=true;}catch(e){console.error("Load error",e);}}
 function bySlot(key,status){return allRequests.filter(r=>r.slot_key===key&&r.status===status);}
 
@@ -1522,7 +1577,7 @@ function parseTimeRangeMinutes(str){
   return{start,end};
 }
 // Get all non-rejected bookings on a given date whose time overlaps the given slot's time range
-function getOverlappingBookings(dd,slotTimeStr,statusFilter){
+function getOverlappingBookings(dd,slotTimeStr,statusFilter,coachFilter=null){
   const target=parseTimeRangeMinutes(slotTimeStr);
   if(!target)return[];
   return allRequests.filter(r=>{
@@ -1530,15 +1585,17 @@ function getOverlappingBookings(dd,slotTimeStr,statusFilter){
     if(r.slot_id==="CUSTOM")return false;
     if(statusFilter&&r.status!==statusFilter)return false;
     if(!statusFilter&&r.status==="rejected")return false;
+    // Coach filter: if specified, only count bookings for that coach
+    if(coachFilter&&r.coach&&r.coach!==coachFilter)return false;
     const range=parseTimeRangeMinutes(r.slot_time);
     if(!range)return false;
-    return range.start<target.end&&range.end>target.start; // overlap test
+    return range.start<target.end&&range.end>target.start;
   });
 }
 
 // WEEKS
-const weeks=[];let wk="2026-06-01";
-while(wk<="2026-07-27"){const sat=addDays(wk,5);weeks.push({mon:wk,lbl:`${fmt(wk)} – ${fmt(sat)}`});wk=addDays(wk,7);}
+const weeks=[];let wk="2026-11-23";
+while(wk<="2027-08-25"){const sat=addDays(wk,5);weeks.push({mon:wk,lbl:`${fmt(wk)} – ${fmt(sat)}`});wk=addDays(wk,7);}
 const wSel=document.getElementById("weekSelect");
 weeks.forEach((w,i)=>{const o=document.createElement("option");o.value=i;o.textContent=`Week of ${w.lbl}`;wSel.appendChild(o);});
 
@@ -1552,7 +1609,7 @@ async function renderWeek(idx){
   DAYS.forEach((day,di)=>{
     const dd=addDays(w.mon,di);if(dd<today)return;
     anyRendered=true;
-    const blocked=getBlockedDate(dd);
+    const blocked=getBlockedDate(dd,null); // null = show if any coach blocked
     const blk=document.createElement("div");blk.className="day-block";
     blk.innerHTML=`<div class="day-hdr"><span class="dname">${day}</span><span class="ddate">${fmt(dd)}</span></div>`;
     if(blocked){
@@ -1601,13 +1658,36 @@ async function renderWeek(idx){
         pill=`<span class="spill" style="background:rgba(244,160,42,.18);color:#f4a02a;">⏳ Pending</span>`;
         extra=`<div style="font-size:11px;color:#f4a02a;font-weight:700;margin-top:2px;">Request pending — awaiting coach confirmation</div>`;
         row.className+=" pending-row";
-        row.addEventListener("click",()=>alert(`This slot has a pending request from ${pending[0].player_name} awaiting Coach Jason's confirmation. Please check back soon or choose another slot.`));
+        row.addEventListener("click",()=>alert(`This slot has a pending request from ${pending[0].player_name} awaiting coach confirmation. Please check back soon or choose another slot.`));
       }else{
         open=true;row.className+=" open";
-        pill=`<span class="spill p-open">OPEN</span>`;
-        if(pending.length>0)extra+=`<div style="font-size:10px;color:var(--gold-t);margin-top:2px;">⏳ ${pending.length} pending</div>`;
-        extra+=`<div class="sprice">1 Hour Session</div>`;
-        row.addEventListener("click",()=>openModal(sl,day,dd));
+        // Per-coach availability
+        const jConfirmed=getOverlappingBookings(dd,sl.time,"confirmed","jason");
+        const jPending=getOverlappingBookings(dd,sl.time,"pending","jason");
+        const cConfirmed=getOverlappingBookings(dd,sl.time,"confirmed","ciri");
+        const cPending=getOverlappingBookings(dd,sl.time,"pending","ciri");
+        const jOpen=jConfirmed.length===0&&jPending.length===0;
+        const cOpen=cConfirmed.length===0&&cPending.length===0;
+        const availCount=[jOpen,cOpen].filter(Boolean).length;
+        if(availCount===2){
+          pill=`<span class="spill p-open">OPEN · 2</span>`;
+          extra=`<div style="font-size:10px;color:var(--text-mid);margin-top:3px;">👨‍🏫 Jason &nbsp;·&nbsp; 👩‍🏫 Ciri</div>`;
+        }else if(jOpen){
+          pill=`<span class="spill p-open">OPEN</span>`;
+          extra=`<div style="font-size:10px;color:var(--text-mid);margin-top:3px;">👨‍🏫 Coach Jason</div>`;
+        }else if(cOpen){
+          pill=`<span class="spill p-open">OPEN</span>`;
+          extra=`<div style="font-size:10px;color:var(--text-mid);margin-top:3px;">👩‍🏫 Coach Ciri</div>`;
+        }else{
+          pill=`<span class="spill" style="background:rgba(244,160,42,.18);color:#f4a02a;">⏳ Pending</span>`;
+          extra=`<div style="font-size:11px;color:#f4a02a;font-weight:700;margin-top:2px;">Request pending — awaiting confirmation</div>`;
+        }
+        row.addEventListener("click",()=>{
+          if(!jOpen&&!cOpen) return alert("This slot has pending requests awaiting confirmation. Please check back soon.");
+          if(jOpen&&!cOpen) openModal(sl,day,dd,"jason");
+          else if(cOpen&&!jOpen) openModal(sl,day,dd,"ciri");
+          else openModal(sl,day,dd,null); // both open — user picks in form
+        });
       }
       // Slot B adjusts based on Slot A session type
       let dispTime=sl.time;
@@ -1690,7 +1770,7 @@ function athleteSummaryHTML(a){
   </div>`;
 }
 
-function openModal(sl,day,dd){
+function openModal(sl,day,dd,preselectedCoach=null){
   cur={sl,day,dd};
   document.getElementById("formView").style.display="";document.getElementById("successView").style.display="none";
   const btn=document.getElementById("submitBtn");btn.disabled=false;btn.textContent="Send Booking Request";
@@ -1978,6 +2058,30 @@ function closeModal(){document.getElementById("overlay").classList.remove("open"
 function handleOverlay(e){if(e.target===document.getElementById("overlay"))closeModal();}
 
 let lastSubmitted=null;
+function selectBookingCoach(coach){
+  document.getElementById("selectedCoachField").value=coach;
+  const jBtn=document.getElementById("coachBtnJason");
+  const cBtn=document.getElementById("coachBtnCiri");
+  if(coach==="jason"){
+    jBtn.style.borderColor="var(--orange)";
+    cBtn.style.borderColor="transparent";
+  }else{
+    cBtn.style.borderColor="var(--orange)";
+    jBtn.style.borderColor="transparent";
+  }
+}
+function selectBookingCoach(coach){
+  document.getElementById("selectedCoachField").value=coach;
+  const jBtn=document.getElementById("coachBtnJason");
+  const cBtn=document.getElementById("coachBtnCiri");
+  if(coach==="jason"){
+    jBtn.style.borderColor="var(--orange)";
+    cBtn.style.borderColor="transparent";
+  }else{
+    cBtn.style.borderColor="var(--orange)";
+    jBtn.style.borderColor="transparent";
+  }
+}
 async function submitForm(){
   const v=id=>document.getElementById(id).value.trim();
   const st=v("fSessionType")||"open";
@@ -1987,8 +2091,9 @@ async function submitForm(){
   const{sl,day,dd}=cur;const key=`${dd}_${sl.id}`;
   // Safety check: re-verify slot is still open before submitting (prevents race-condition double bookings)
   await loadAll();
-  const existingConfirmed=getOverlappingBookings(dd,sl.time,"confirmed");
-  const existingPending=getOverlappingBookings(dd,sl.time,"pending");
+  const selectedCoach=document.getElementById("selectedCoachField")?.value||"jason";
+  const existingConfirmed=getOverlappingBookings(dd,sl.time,"confirmed",selectedCoach);
+  const existingPending=getOverlappingBookings(dd,sl.time,"pending",selectedCoach);
   const existingType=existingConfirmed[0]?.session_type||existingPending[0]?.session_type||null;
   const slotCap=({two:2,group:6,individual:1,family_two:1,open:1})[existingType]||1;
   const stillAvailable=existingConfirmed.length<slotCap&&(existingConfirmed.length+existingPending.length)<slotCap;
@@ -2018,7 +2123,7 @@ async function submitForm(){
   let teammates=getExtraPlayers().join(", ")||"";
   let extraNotes=v("fNotes")||"";
     const actualSessionType="open";
-  const req={slot_key:key,slot_id:sl.id,slot_time:actualTime,slot_label:actualLabel,slot_date:fmtLong(dd),session_type:actualSessionType,skill_level:lvl,player_name:v("fName"),player_age:v("fAge"),parent_name:v("fParent"),phone:v("fPhone"),email:v("fEmail"),teammates:teammates,notes:extraNotes||"",status:"pending",payment_status:"unpaid",confirm_pref:getConfirmPref()};
+  const req={slot_key:key,slot_id:sl.id,slot_time:actualTime,slot_label:actualLabel,slot_date:fmtLong(dd),session_type:actualSessionType,skill_level:lvl,player_name:v("fName"),player_age:v("fAge"),parent_name:v("fParent"),phone:v("fPhone"),email:v("fEmail"),teammates:teammates,notes:extraNotes||"",status:"pending",payment_status:"unpaid",confirm_pref:getConfirmPref(),coach:document.getElementById("selectedCoachField")?.value||"jason"};
   try{
     const dbRes=await api(REQUESTS,{method:"POST",body:JSON.stringify(req)});
     if(!dbRes.ok){const err=await dbRes.json().catch(()=>({}));console.error("DB error:",err);throw new Error(err?.message||"Insert failed");}
@@ -2123,14 +2228,19 @@ function handlePayPromptOverlay(e){if(e.target===document.getElementById("payPro
 
 function ab(label,bg,color,border,fn){return `<button class="abtn" style="background:${bg};color:${color};border:${border};" onclick="${fn}">${label}</button>`;}
 function refreshCoachLists(){
-  const pending=allRequests.filter(r=>r.status==="pending");
-  const confirmed=allRequests.filter(r=>r.status==="confirmed");
-  const rejected=allRequests.filter(r=>r.status==="rejected");
+  // Filter by coach: Ciri sees only her bookings; Jason sees all
+  function coachFilter(r){
+    if(currentCoach==="ciri") return r.coach==="ciri";
+    return true; // Jason sees everything
+  }
+  const pending=allRequests.filter(r=>r.status==="pending"&&coachFilter(r));
+  const confirmed=allRequests.filter(r=>r.status==="confirmed"&&coachFilter(r));
+  const rejected=allRequests.filter(r=>r.status==="rejected"&&coachFilter(r));
   const pList=document.getElementById("pendingList");
   pList.innerHTML=pending.length===0?`<div style="font-size:13px;color:var(--text-dim);text-align:center;padding:16px;">No new requests.</div>`:"";
   pending.forEach(r=>{const d=document.createElement("div");d.className="req-item";
     const isCustom=r.slot_id==="CUSTOM";
-    d.innerHTML=`<div><div class="ri-name">${isCustom?"⏰ ":""}${r.player_name} <span style="font-size:11px;font-weight:400;color:var(--text-dim)">age ${r.player_age||"—"}</span>${isCustom?'<span style="background:#4a1d96;color:#c4b5fd;font-size:9px;font-weight:700;border-radius:4px;padding:2px 7px;margin-left:6px;letter-spacing:1px;">CUSTOM TIME</span>':""}</div><div class="ri-badges">${levelBadge(r.skill_level)}</div><div class="ri-sub">${isCustom?"📅 "+r.slot_date+" · ⏰ Requested: "+r.slot_time:"Slot "+r.slot_id+" · "+r.slot_time+" · "+r.slot_date}</div><div style="font-size:11px;color:var(--text-mid);margin-top:2px;">${r.confirm_pref==="text"?"💬 Prefers text confirmation":r.confirm_pref==="both"?"📲 Wants email + text confirmation":"✉️ Prefers email confirmation"}</div><div class="ri-sub">Parent: ${r.parent_name}</div>
+    d.innerHTML=`<div><div class="ri-name">${r.coach==="ciri"?"👩‍🏫 ":"👨‍🏫 "}${isCustom?"⏰ ":""}${r.player_name} <span style="font-size:11px;font-weight:400;color:var(--text-dim)">age ${r.player_age||"—"}</span>${isCustom?'<span style="background:#4a1d96;color:#c4b5fd;font-size:9px;font-weight:700;border-radius:4px;padding:2px 7px;margin-left:6px;letter-spacing:1px;">CUSTOM TIME</span>':""}</div><div class="ri-badges">${levelBadge(r.skill_level)}</div><div class="ri-sub">${isCustom?"📅 "+r.slot_date+" · ⏰ Requested: "+r.slot_time:"Slot "+r.slot_id+" · "+r.slot_time+" · "+r.slot_date}</div><div style="font-size:11px;color:var(--text-mid);margin-top:2px;">${r.confirm_pref==="text"?"💬 Prefers text confirmation":r.confirm_pref==="both"?"📲 Wants email + text confirmation":"✉️ Prefers email confirmation"}</div><div class="ri-sub">Parent: ${r.parent_name}</div>
         <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
           <a href="tel:${r.phone}" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;background:var(--green-l);border:1px solid var(--green);color:var(--green-t);font-size:11px;font-weight:700;text-decoration:none;font-family:'Oswald',sans-serif;letter-spacing:.5px;">📞 Call</a>
           <a href="sms:${r.phone}" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;background:var(--slot-two);border:1px solid var(--slot-two-b);color:#5ea0d8;font-size:11px;font-weight:700;text-decoration:none;font-family:'Oswald',sans-serif;letter-spacing:.5px;">💬 Text</a>
@@ -2178,12 +2288,36 @@ function refreshCoachLists(){
   rejected.forEach(r=>{const d=document.createElement("div");d.className="req-item";d.style.opacity="0.8";d.innerHTML=`<div><div class="ri-name" style="color:var(--text-mid)">❌ ${r.player_name}</div><div class="ri-sub">Slot ${r.slot_id} · ${r.slot_time} · ${r.slot_date}</div><div class="ri-sub">${r.parent_name} · ${r.phone}</div></div><div class="action-row" style="grid-template-columns:1fr 1fr;">${ab("↩️ Restore","var(--green-l)","var(--green-t)","1px solid var(--green)","restoreRequest('"+r.id+"')")}${ab("🗑 Remove","var(--red-l)","var(--red-t)","1px solid var(--red)","removeRequest('"+r.id+"')")}</div>`;rList.appendChild(d);});
 }
 
+let _pendingCoachLogin=null;
+function selectCoachLogin(coach){
+  _pendingCoachLogin=coach;
+  document.getElementById("coachPicker").style.display="none";
+  document.getElementById("pinEntryArea").style.display="";
+  document.getElementById("selectedCoachLabel").textContent=coach==="jason"?"Coach Jason":"Coach Ciri";
+  document.getElementById("pinInput").value="";
+  document.getElementById("pinError").style.display="none";
+  document.getElementById("pinInput").focus();
+}
+function backToCoachPicker(){
+  _pendingCoachLogin=null;
+  document.getElementById("coachPicker").style.display="flex";
+  document.getElementById("pinEntryArea").style.display="none";
+  document.getElementById("pinError").style.display="none";
+}
 function checkPin(){
   const p=document.getElementById("pinInput").value;
-  if(p===getPin()){
+  const correctPin=_pendingCoachLogin==="ciri"?getCiriPin():getPin();
+  if(p===correctPin){
     coachMode=true;
+    currentCoach=_pendingCoachLogin||"jason";
     document.getElementById("pinGate").style.display="none";
     document.getElementById("coachPanel").style.display="";
+    // Show/hide admin-only sections based on coach
+    const isAdmin=currentCoach==="jason";
+    document.querySelectorAll(".admin-only").forEach(el=>el.style.display=isAdmin?"":"none");
+    // Update coach panel header
+    const hdr=document.getElementById("coachPanelHeader");
+    if(hdr) hdr.textContent=currentCoach==="ciri"?"Coach Ciri — My Bookings":"Manage Bookings";
     loadAll().then(()=>{
       loadBlockedDates().then(()=>{
         refreshCoachLists();
@@ -2193,7 +2327,7 @@ function checkPin(){
     });
   }else{document.getElementById("pinError").style.display="block";document.getElementById("pinInput").value="";}
 }
-function lockCoach(){coachMode=false;document.getElementById("pinGate").style.display="";document.getElementById("coachPanel").style.display="none";document.getElementById("pinInput").value="";document.getElementById("pinError").style.display="none";}
+function lockCoach(){coachMode=false;currentCoach="jason";_pendingCoachLogin=null;document.getElementById("coachPicker").style.display="flex";document.getElementById("pinEntryArea").style.display="none";document.getElementById("pinGate").style.display="";document.getElementById("coachPanel").style.display="none";document.getElementById("pinInput").value="";document.getElementById("pinError").style.display="none";}
 function changePin(){const p1=document.getElementById("newPin1").value.trim();const p2=document.getElementById("newPin2").value.trim();const fb=document.getElementById("pinChangeFeedback");if(!p1||p1.length<4){fb.className="pin-feedback pin-err";fb.textContent="At least 4 digits.";return;}if(p1!==p2){fb.className="pin-feedback pin-err";fb.textContent="PINs don't match.";return;}if(!/^\d+$/.test(p1)){fb.className="pin-feedback pin-err";fb.textContent="Numbers only.";return;}setPin(p1);document.getElementById("newPin1").value="";document.getElementById("newPin2").value="";fb.className="pin-feedback pin-ok";fb.textContent="✅ PIN updated!";setTimeout(()=>fb.textContent="",3000);}
 function switchTab(tab,btn){document.querySelectorAll(".tp").forEach(p=>p.classList.remove("active"));document.querySelectorAll(".nb").forEach(b=>b.classList.remove("active"));document.getElementById("tab-"+tab).classList.add("active");btn.classList.add("active");}
 </script>
