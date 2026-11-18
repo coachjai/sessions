@@ -464,18 +464,29 @@ body.light .cancel-policy-row{color:#9a3412;}
     <div id="pendingList"><div class="loading-bar"><div class="spin"></div> Loading…</div></div>
     <div class="sh"><h2>Confirmed</h2><div class="rule"></div></div>
     <div id="confirmedList"><div class="loading-bar"><div class="spin"></div> Loading…</div></div>
-    <div class="sh"><h2>Rejected</h2><div class="rule"></div></div>
-    <div id="rejectedList"><div style="font-size:13px;color:var(--text-dim);text-align:center;padding:16px;">No rejected requests.</div></div>
+    <div class="sh" style="cursor:pointer;" onclick="toggleSection('rejectedSection','rejectedChevron')">
+      <h2>Rejected</h2><div class="rule"></div>
+      <span id="rejectedChevron" style="color:var(--text-dim);font-size:14px;flex-shrink:0;transition:transform .2s;">▶</span>
+    </div>
+    <div id="rejectedSection" style="display:none;">
+      <div id="rejectedList"><div style="font-size:13px;color:var(--text-dim);text-align:center;padding:16px;">No rejected requests.</div></div>
+    </div>
 
-    <div class="sh" id="blockSectionHeader"><h2 id="blockSectionTitle">Block Availability</h2><div class="rule"></div></div>
+    <div class="sh" id="blockSectionHeader" style="cursor:pointer;" onclick="toggleSection('blockSection','blockChevron')">
+      <h2 id="blockSectionTitle">Block Availability</h2><div class="rule"></div>
+      <span id="blockChevron" style="color:var(--text-dim);font-size:14px;flex-shrink:0;transition:transform .2s;">▼</span>
+    </div>
+    <div id="blockSection">
     <div class="card" style="padding:16px;">
-      <div class="fr" style="margin-bottom:12px;">
-        <div class="field" style="margin-bottom:0"><label>Date</label><input type="date" id="blockDateInput"/></div>
-        <div class="field" style="margin-bottom:0"><label>Reason</label><input type="text" id="blockReasonInput" placeholder="e.g. Family event"/></div>
+      <div class="fr" style="margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div class="field" style="margin-bottom:0;flex:1;min-width:130px;"><label>Start Date</label><input type="date" id="blockDateInput"/></div>
+        <div class="field" style="margin-bottom:0;flex:1;min-width:130px;"><label>End Date <span style="font-weight:400;color:var(--text-dim)">(optional)</span></label><input type="date" id="blockDateEndInput"/></div>
+        <div class="field" style="margin-bottom:0;flex:1;min-width:130px;"><label>Reason</label><input type="text" id="blockReasonInput" placeholder="e.g. Out of town"/></div>
       </div>
-      <button class="btn-or" style="font-size:14px;padding:12px;margin-bottom:0;" onclick="addBlockedDate()">🚫 Block This Day</button>
+      <button class="btn-or" style="font-size:14px;padding:12px;margin-bottom:0;" onclick="addBlockedDate()">🚫 Block Date(s)</button>
     </div>
     <div id="blockedDatesList"><div style="font-size:13px;color:var(--text-dim);text-align:center;padding:16px;">No days blocked.</div></div>
+    </div>
 
         <div class="admin-only">
     <div class="sh"><h2>Session Settings</h2><div class="rule"></div></div>
@@ -502,6 +513,22 @@ body.light .cancel-policy-row{color:#9a3412;}
       <div id="durPreview" style="font-size:12px;color:var(--text-mid);margin-bottom:14px;min-height:16px;"></div>
       <button class="btn-or" onclick="saveDurationSettings()" style="margin-bottom:0;">Save Session Durations</button>
       <div id="durSaveMsg" style="display:none;font-size:12px;color:var(--green-t);text-align:center;margin-top:8px;">✓ Saved</div>
+    </div>
+    </div>
+
+    <div class="admin-only">
+    <div class="sh"><h2>Edit Profiles &amp; Location</h2><div class="rule"></div></div>
+    <div class="card" style="padding:20px;">
+      <div style="margin-bottom:20px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:8px;">📍 Session Location</div>
+        <input id="editLocation" type="text"
+          style="width:100%;background:var(--input-bg);border:1px solid var(--navy3);border-radius:var(--r);padding:11px 13px;color:var(--white);font-size:13px;font-family:'Inter',sans-serif;margin-bottom:8px;"
+          placeholder="e.g. Freed Park · 6818 Shadyvilla Ln, Houston, TX 77055"/>
+        <button class="btn-or" style="padding:9px 18px;font-size:12px;" onclick="saveLocationEdit()">Save Location</button>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--navy3);margin:16px 0;"/>
+      <div id="editProfilesContainer"></div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.5;">Photos saved in your browser. Best results: square or portrait image under 2 MB.</div>
     </div>
     </div>
 
@@ -615,22 +642,6 @@ body.light .cancel-policy-row{color:#9a3412;}
         <div class="s-contacts">
           <div class="sc-row"><span>📞</span><a href="tel:9033434602">(903) 343-4602</a></div>
           <div class="sc-row"><span>✉️</span><a href="mailto:jason.tylerfc@gmail.com">jason.tylerfc@gmail.com</a></div>
-        </div>
-
-        <div class="admin-only">
-    <div class="sh"><h2>Edit Profiles &amp; Location</h2><div class="rule"></div></div>
-    <div class="card" style="padding:20px;">
-      <div style="margin-bottom:20px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:8px;">📍 Session Location</div>
-        <input id="editLocation" type="text"
-          style="width:100%;background:var(--input-bg);border:1px solid var(--navy3);border-radius:var(--r);padding:11px 13px;color:var(--white);font-size:13px;font-family:'Inter',sans-serif;margin-bottom:8px;"
-          placeholder="e.g. Freed Park · 6818 Shadyvilla Ln, Houston, TX 77055"/>
-        <button class="btn-or" style="padding:9px 18px;font-size:12px;" onclick="saveLocationEdit()">Save Location</button>
-      </div>
-      <hr style="border:none;border-top:1px solid var(--navy3);margin:16px 0;"/>
-      <div id="editProfilesContainer"></div>
-      <div style="font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.5;">Photos are saved in your browser. Best results: square or portrait image under 2 MB.</div>
-    </div>
         </div>
 
         <button class="btn-or" onclick="closeCustomModal()" style="background:#7040b0;">Done</button>
@@ -1723,23 +1734,51 @@ function getBlockedDate(dd,checkCoach=null){
   })||null;
 }
 
+function toggleSection(sectionId,chevronId){
+  const sec=document.getElementById(sectionId);
+  const chev=document.getElementById(chevronId);
+  if(!sec)return;
+  const open=sec.style.display!=="none";
+  sec.style.display=open?"none":"";
+  if(chev)chev.textContent=open?"▶":"▼";
+}
+
 async function addBlockedDate(){
-  const date=document.getElementById("blockDateInput").value;
-  const reason=document.getElementById("blockReasonInput").value.trim();
-  if(!date){alert("Please select a date.");return;}
+  const dateStart=document.getElementById("blockDateInput").value;
+  const dateEnd=document.getElementById("blockDateEndInput")?.value||"";
+  const reason=document.getElementById("blockReasonInput").value.trim()||"Unavailable";
+  if(!dateStart){alert("Please select a start date.");return;}
+  // Build list of dates to block
+  const datesToBlock=[];
+  if(dateEnd&&dateEnd>dateStart){
+    let cur=new Date(dateStart+"T12:00:00");
+    const end=new Date(dateEnd+"T12:00:00");
+    while(cur<=end){
+      const ds=cur.toISOString().slice(0,10);
+      if(cur.getDay()!==0) datesToBlock.push(ds); // skip Sundays
+      cur.setDate(cur.getDate()+1);
+    }
+  } else {
+    datesToBlock.push(dateStart);
+  }
   try{
-    const _bp={blocked_date:date,reason:reason||"Unavailable"};
-    if(currentCoach==="ciri") _bp.coach="ciri";
-    res=await api("blocked_dates",{method:"POST",body:JSON.stringify(_bp)});
-    if(!res.ok){const e=await res.json();alert(e?.message||"Could not block date.");return;}
-    const saved=await res.json();
-    const newEntry=Array.isArray(saved)?saved[0]:{id:Date.now(),blocked_date:date,reason:reason||"Unavailable"};
-    blockedDates.push(newEntry);
+    for(const date of datesToBlock){
+      const _bp={blocked_date:date,reason};
+      if(currentCoach==="ciri") _bp.coach="ciri";
+      const res=await api("blocked_dates",{method:"POST",body:JSON.stringify(_bp)});
+      if(!res.ok){const e=await res.json();alert(e?.message||"Could not block date "+date);continue;}
+      const saved=await res.json();
+      const newEntry=Array.isArray(saved)?saved[0]:{id:Date.now()+Math.random(),blocked_date:date,reason};
+      blockedDates.push(newEntry);
+    }
     blockedDates.sort((a,b)=>a.blocked_date.localeCompare(b.blocked_date));
     document.getElementById("blockDateInput").value="";
+    if(document.getElementById("blockDateEndInput")) document.getElementById("blockDateEndInput").value="";
     document.getElementById("blockReasonInput").value="";
     renderBlockedDatesList();
     renderWeek(+document.getElementById("weekSelect").value);
+    renderCal();
+    if(datesToBlock.length>1) showToast(`${datesToBlock.length} days blocked ✓`);
   }catch(e){alert("Something went wrong.");}
 }
 
@@ -2041,12 +2080,9 @@ async function renderWeek(idx){
           else openModal(sl,day,dd,null); // both open — user picks in form
         });
       }
-      // Slot B adjusts based on Slot A session type
-      let dispTime=sl.time;
-      if(sl.id==="B"){
-        // All sessions 1hr — B always 10:00-11:00 AM regardless of A type
-      }
-      // For confirmed bookings, show their stored original time
+      // Show full time range; for confirmed bookings use their stored time
+      const _d=getSessionDurations();
+      let dispTime=formatRange(sl.time,_d.individual);
       if(isFull&&confirmed[0]?.slot_time)dispTime=confirmed[0].slot_time;
       // Display label — show session type when booked
       let dispLabel=sl.label;
@@ -2185,7 +2221,7 @@ function openModal(sl,day,dd,preselectedCoach=null){
   document.getElementById("flexTimeBox").style.display="none";
   document.getElementById("partnerField").style.display=(sl.type==="two"||sl.type==="flexible"||sl.type==="group")?"":"none";
 
-  const timeLabel=sl.time;
+  const timeLabel=formatRange(sl.time,getSessionDurations().individual);
   document.getElementById("modalSub").textContent=`Slot ${sl.id} · ${timeLabel} · ${fmtLong(dd)}`;
   // Lock session type when joining an existing multi-player slot
   const existingBookings=getOverlappingBookings(dd,sl.time,"confirmed");
@@ -2446,9 +2482,10 @@ async function submitForm(){
     renderWeek(+document.getElementById("weekSelect").value);
     return;
   }
-    const actualTime=sl.time;
-  const actualPrice="";
-  const actualLabel="1 Hour Session";
+  const durations=getSessionDurations();
+  const actualTime=formatRange(sl.time,durations[st]||durations.individual);
+  const actualPrice=PRICE_NUMS[st]?`$${PRICE_NUMS[st]}`:"";
+  const actualLabel=TYPE_LABELS[st]||"Session";
   // Use multi-athlete selections for group/2-player sessions
   const selectedAthletes=getSelectedAthletes();
   const isMultiSession=st==="two"||st==="family_two"||st==="group";
@@ -2464,7 +2501,7 @@ async function submitForm(){
   }
   let teammates=getExtraPlayers().join(", ")||"";
   let extraNotes=v("fNotes")||"";
-    const actualSessionType="open";
+  const actualSessionType=st;
   const req={slot_key:key,slot_id:sl.id,slot_time:actualTime,slot_label:actualLabel,slot_date:fmtLong(dd),session_type:actualSessionType,skill_level:lvl,player_name:v("fName"),player_age:v("fAge"),parent_name:v("fParent"),phone:v("fPhone"),email:v("fEmail"),teammates:teammates,notes:extraNotes||"",status:"pending",payment_status:"unpaid",confirm_pref:getConfirmPref(),coach:document.getElementById("selectedCoachField")?.value||"jason"};
   try{
     const dbRes=await api(REQUESTS,{method:"POST",body:JSON.stringify(req)});
