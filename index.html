@@ -1831,7 +1831,7 @@ function renderCoachCards(){
   if(el) el.innerHTML=html;
 }
 
-function renderWeek(idx){
+async function renderWeek(idx){
   if(!dbLoaded)await loadAll();
   const w=weeks[idx];const wrap=document.getElementById("weekContent");wrap.innerHTML="";
   const isFullDay=fullDayWeeks.includes(w.mon);
@@ -2290,18 +2290,6 @@ function closeModal(){document.getElementById("overlay").classList.remove("open"
 function handleOverlay(e){if(e.target===document.getElementById("overlay"))closeModal();}
 
 let lastSubmitted=null;
-function selectBookingCoach(coach){
-  document.getElementById("selectedCoachField").value=coach;
-  const jBtn=document.getElementById("coachBtnJason");
-  const cBtn=document.getElementById("coachBtnCiri");
-  if(coach==="jason"){
-    jBtn.style.borderColor="var(--orange)";
-    cBtn.style.borderColor="transparent";
-  }else{
-    cBtn.style.borderColor="var(--orange)";
-    jBtn.style.borderColor="transparent";
-  }
-}
 function selectBookingCoach(coach){
   document.getElementById("selectedCoachField").value=coach;
   const jBtn=document.getElementById("coachBtnJason");
