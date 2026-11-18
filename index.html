@@ -931,7 +931,21 @@ setTimeout(async()=>{
 // THEME
 const THEME_KEY="jm_theme_v1";
 function toggleTheme(){const l=document.body.classList.toggle("light");document.getElementById("themeToggle").textContent=l?"☀️":"🌙";localStorage.setItem(THEME_KEY,l?"light":"dark");}
-(()=>{if(localStorage.getItem(THEME_KEY)==="light"){document.body.classList.add("light");document.getElementById("themeToggle").textContent="☀️";}})();
+(()=>{
+  const stored=localStorage.getItem(THEME_KEY);
+  const prefersDark=window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const useDark=stored?stored==="dark":prefersDark;
+  if(!useDark){document.body.classList.add("light");}
+  const btn=document.getElementById("themeToggle");
+  if(btn)btn.textContent=useDark?"🌙":"☀️";
+  // Listen for system theme changes (only if user hasn't manually set a preference)
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",e=>{
+    if(!localStorage.getItem(THEME_KEY)){
+      if(e.matches){document.body.classList.remove("light");if(btn)btn.textContent="🌙";}
+      else{document.body.classList.add("light");if(btn)btn.textContent="☀️";}
+    }
+  });
+})();
 
 // PIN
 const PIN_STORE="jm_coach_pin_v1";
@@ -1508,7 +1522,7 @@ async function addBlockedDate(){
   const reason=document.getElementById("blockReasonInput").value.trim();
   if(!date){alert("Please select a date.");return;}
   try{
-    const const _bp={blocked_date:date,reason:reason||"Unavailable"};
+    const _bp={blocked_date:date,reason:reason||"Unavailable"};
     if(currentCoach==="ciri") _bp.coach="ciri";
     res=await api("blocked_dates",{method:"POST",body:JSON.stringify(_bp)});
     if(!res.ok){const e=await res.json();alert(e?.message||"Could not block date.");return;}
