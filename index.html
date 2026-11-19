@@ -7,11 +7,13 @@
 <meta name="theme-color" content="#0a0a0a"/>
 <meta property="og:title" content="JCT | Junior Champions Train – Houston, TX"/>
 <meta property="og:description" content="Book a soccer training session with Coach Jason or Coach Ciri. Houston, TX."/>
-<meta property="og:image" content="https://coachjai.github.io/sessions/logo.webp"/>
+<meta property="og:image" content="https://coachjai.github.io/sessions/icon-512.png"/>
 <meta property="og:type" content="website"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://coachjai.github.io/sessions/logo.webp"/>
-<link rel="apple-touch-icon" id="ati-link"/>
+<meta name="twitter:image" content="https://coachjai.github.io/sessions/icon-512.png"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="manifest" href="manifest.json"/>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -2893,8 +2895,6 @@ function saveDurationSettings(){
 function lockCoach(){coachMode=false;currentCoach="jason";_pendingCoachLogin=null;document.getElementById("coachPicker").style.display="flex";document.getElementById("pinEntryArea").style.display="none";document.getElementById("pinGate").style.display="";document.getElementById("coachPanel").style.display="none";document.getElementById("pinInput").value="";document.getElementById("pinError").style.display="none";}
 function changePin(){const p1=document.getElementById("newPin1").value.trim();const p2=document.getElementById("newPin2").value.trim();const fb=document.getElementById("pinChangeFeedback");if(!p1||p1.length<4){fb.className="pin-feedback pin-err";fb.textContent="At least 4 digits.";return;}if(p1!==p2){fb.className="pin-feedback pin-err";fb.textContent="PINs don't match.";return;}if(!/^\d+$/.test(p1)){fb.className="pin-feedback pin-err";fb.textContent="Numbers only.";return;}setPin(p1);document.getElementById("newPin1").value="";document.getElementById("newPin2").value="";fb.className="pin-feedback pin-ok";fb.textContent="✅ PIN updated!";setTimeout(()=>fb.textContent="",3000);}
 function switchTab(tab,btn){document.querySelectorAll(".tp").forEach(p=>p.classList.remove("active"));document.querySelectorAll(".nb").forEach(b=>b.classList.remove("active"));document.getElementById("tab-"+tab).classList.add("active");btn.classList.add("active");if(tab==="schedule"){renderCal();}if(tab==="contact"){renderCoachCards();}}
-// Set apple-touch-icon from embedded logo for home screen save
-(function(){try{var img=document.querySelector('.hero-logo-dark');if(!img)return;var ati=document.getElementById('ati-link');if(ati&&img.src){ati.href=img.src;}}catch(e){}})();
 </script>
 </body>
 </html>
