@@ -662,7 +662,7 @@ body.light .cancel-policy-row{color:#9a3412;}
         <div class="s-msg">Coach Jason will review your custom time request and reach out within 24 hours to confirm.</div>
         <div class="s-contacts">
           <div class="sc-row"><span>📞</span><a href="tel:9033434602">(903) 343-4602</a></div>
-          <div class="sc-row"><span>✉️</span><a href="mailto:jason.tylerfc@gmail.com">jason.tylerfc@gmail.com</a></div>
+          <div class="sc-row"><span>✉️</span><a href="mailto:coachjai.jct@gmail.com">coachjai.jct@gmail.com</a></div>
         </div>
 
         <button class="btn-or" onclick="closeCustomModal()" style="background:#7040b0;">Done</button>
@@ -827,7 +827,7 @@ body.light .cancel-policy-row{color:#9a3412;}
         <div class="s-icon">⚽</div>
         <div class="s-title">Request Sent!</div>
         <div class="s-msg">Coach Jason will confirm within 24 hours. You'll receive an email confirmation with payment details once confirmed.</div>
-        <div class="s-contacts"><div class="sc-row"><span>📞</span><a href="tel:9033434602">(903) 343-4602</a></div><div class="sc-row"><span>✉️</span><a href="mailto:jason.tylerfc@gmail.com">jason.tylerfc@gmail.com</a></div></div>
+        <div class="s-contacts"><div class="sc-row"><span>📞</span><a href="tel:9033434602">(903) 343-4602</a></div><div class="sc-row"><span>✉️</span><a href="mailto:coachjai.jct@gmail.com">coachjai.jct@gmail.com</a></div></div>
         <button class="btn-or" onclick="closeModal()">Done</button>
       </div>
     </div>
@@ -981,7 +981,7 @@ const SUPABASE_URL="https://kwvjewnoardctssfjtvb.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dmpld25vYXJkY3Rzc2ZqdHZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MjExNDksImV4cCI6MjA5NTQ5NzE0OX0.Whb3_4-MSMMXQil2iZHipTvPTd1BIrz4hav1hzrIqHY";
 const REQUESTS="requests";const PROFILES="profiles";
 const EMAILJS_PUBLIC_KEY="VGZVhLT11IYcTJhOn";
-const EMAILJS_SERVICE_ID="jason.tylerfc@gmail.com"; // update if needed — find in EmailJS → Email Services
+const EMAILJS_SERVICE_ID="coachjai.jct@gmail.com"; // update if needed — find in EmailJS → Email Services
 const EMAILJS_TEMPLATE_ID="template_mnbuknr";
 
 const {createClient}=(window.supabase||{});
@@ -1333,7 +1333,7 @@ if(sbClient)sbClient.auth.onAuthStateChange(async(event,session)=>{
 async function sendConfirmationEmail(r){
   try{
     const price=PRICE_NUMS[r.session_type]||(r.slot_label==="2-Player"?40:r.slot_label.includes("Group")?30:55);
-    if(!window.emailjs)return;await emailjs.send(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,{to_name:r.parent_name,to_email:r.email,player_name:r.player_name,session_date:r.slot_date,session_time:r.slot_time,session_type:r.slot_label,session_level:(r.skill_level||"").charAt(0).toUpperCase()+(r.skill_level||"").slice(1),session_price:price,location:"Freed Park, 6818 Shadyvilla Ln, Houston, TX 77055"});
+    if(!window.emailjs)return;const coachEmailName=r.coach==="ciri"?"Coach Ciri":"Coach Jason";await emailjs.send(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,{to_name:r.parent_name,to_email:r.email,player_name:r.player_name,session_date:r.slot_date,session_time:r.slot_time,session_type:r.slot_label,session_level:(r.skill_level||"").charAt(0).toUpperCase()+(r.skill_level||"").slice(1),session_price:price,coach_name:coachEmailName,location:"Freed Park, 6818 Shadyvilla Ln, Houston, TX 77055"});
   }catch(e){console.warn("Email failed:",e);}
 }
 
@@ -1370,10 +1370,10 @@ function getDefaultProfiles(){
   return [
     {id:"jason",name:"Jason Martinez",role:"USSF Licensed Coach · Private Training",
      phone:"9033434602",phoneDisplay:"(903) 343-4602",
-     email:"jason.tylerfc@gmail.com",instagram:"definelegit",photo:"",
+     email:"coachjai.jct@gmail.com",instagram:"definelegit",photo:"",
      club:"Bayou City Lobos"},
     {id:"ciri",name:"Coach Ciri",role:"Coach · Female Training Specialist",
-     phone:"",phoneDisplay:"",email:"",instagram:"",photo:"",
+     phone:"",phoneDisplay:"",email:"ciri.jct@gmail.com",instagram:"",photo:"",
      club:"Bayou City Lobos"}
   ];
 }
@@ -2636,7 +2636,8 @@ async function confirmRequest(id){
   renderWeek(+document.getElementById("weekSelect").value);refreshCoachLists();
   if(!r)return;
   const pref=r.confirm_pref||"email";
-  const msg=`Hi ${r.parent_name}! Coach Jason here — just confirming ${r.player_name}'s training session on ${r.slot_date} at ${r.slot_time} at Freed Park. Looking forward to it! Any questions text me back. ⚽`;
+  const coachName=currentCoach==="ciri"?"Coach Ciri":"Coach Jason";
+  const msg=`Hi ${r.parent_name}! ${coachName} here — just confirming ${r.player_name}'s training session on ${r.slot_date} at ${r.slot_time} at Freed Park. Looking forward to it! Any questions text me back. ⚽`;
   const smsUrl=`sms:${r.phone}&body=${encodeURIComponent(msg)}`;
   // Send email if pref is email or both
   if(pref==="email"||pref==="both"){await sendConfirmationEmail(r);}
