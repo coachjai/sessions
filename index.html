@@ -1013,8 +1013,8 @@ setTimeout(async()=>{
 
 // iOS SCROLL LOCK — prevents body scroll behind modal on iOS Safari
 let _scrollY=0;
-function lockBodyScroll(){_scrollY=window.scrollY||0;document.body.style.position="fixed";document.body.style.top=`-${_scrollY}px`;document.body.style.width="100%";document.body.style["overflow"]="hidden";}
-function unlockBodyScroll(){document.body.style.position="";document.body.style.top="";document.body.style.width="";document.body.style.overflow="";window.scrollTo(0,_scrollY);}
+function lockBodyScroll(){_scrollY=window.scrollY||window.pageYOffset||0;document.documentElement.style.overflow="hidden";document.documentElement.style.height="100%";}
+function unlockBodyScroll(){document.documentElement.style.overflow="";document.documentElement.style.height="";window.scrollTo(0,_scrollY);}
 
 // THEME
 const THEME_KEY="jm_theme_v1";
