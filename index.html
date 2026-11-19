@@ -2623,6 +2623,19 @@ async function submitForm(){
     allRequests.unshift(newReq);lastSubmitted=newReq;
     fetch("https://formspree.io/f/xqejwjej",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({_subject:`Training Request – Slot ${sl.id} – ${fmtLong(dd)}`,slot:`${sl.id} | ${actualTime}`,type:actualLabel,level:lvl,pricing:actualPrice,date:`${fmtLong(dd)} (${day})`,location:"Freed Park, 6818 Shadyvilla Ln, Houston TX 77055",player_name:v("fName"),player_age:v("fAge"),parent_name:v("fParent"),phone:v("fPhone"),email:v("fEmail"),teammates:v("fPartners")||"None",notes:v("fNotes")||"None"})}).catch(()=>{});
     document.getElementById("formView").style.display="none";document.getElementById("successView").style.display="";
+    // Update success screen with correct coach name and contact
+    const _sc=document.getElementById("selectedCoachField")?.value||"jason";
+    const _scName=_sc==="ciri"?"Coach Ciri":"Coach Jason";
+    const _scPhone=_sc==="ciri"?(getDefaultProfiles().find(p=>p.id==="ciri")?.phone||""):("9033434602");
+    const _scEmail=_sc==="ciri"?"ciri.jct@gmail.com":"coachjai.jct@gmail.com";
+    const _scPhoneDisplay=_sc==="ciri"?(getDefaultProfiles().find(p=>p.id==="ciri")?.phoneDisplay||""):("(903) 343-4602");
+    const _msgEl=document.querySelector("#successView .s-msg");
+    if(_msgEl)_msgEl.textContent=`${_scName} will confirm within 24 hours. You'll receive an email confirmation with payment details once confirmed.`;
+    const _contactEl=document.querySelector("#successView .s-contacts");
+    if(_contactEl){
+      const _phoneRow=_scPhone?`<div class="sc-row"><span>📞</span><a href="tel:${_scPhone}">${_scPhoneDisplay}</a></div>`:"";
+      _contactEl.innerHTML=`${_phoneRow}<div class="sc-row"><span>✉️</span><a href="mailto:${_scEmail}">${_scEmail}</a></div>`;
+    }
     // Auto-save profile for signed-in users who don't have one yet
     if(currentUser&&(!userProfile?.parent_name)){await upsertProfile({id:currentUser.id,parent_name:v("fParent"),phone:v("fPhone"),email:v("fEmail"),updated_at:new Date().toISOString()});userProfile={...(userProfile||{}),parent_name:v("fParent"),phone:v("fPhone")};updateAuthUI();}
     renderWeek(+document.getElementById("weekSelect").value);
