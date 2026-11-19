@@ -991,7 +991,7 @@ try{
     sbClient=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
   }
 }catch(e){console.error("Supabase init failed:",e);}
-emailjs.init({publicKey:EMAILJS_PUBLIC_KEY});
+try{if(window.emailjs)emailjs.init({publicKey:EMAILJS_PUBLIC_KEY});}catch(e){console.warn("EmailJS init failed:",e);}
 
 const api=(path,opts={})=>fetch(`${SUPABASE_URL}/rest/v1/${path}`,{headers:{"apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`,"Content-Type":"application/json","Prefer":"return=representation",...(opts.headers||{})},...opts});
 
@@ -1333,7 +1333,7 @@ if(sbClient)sbClient.auth.onAuthStateChange(async(event,session)=>{
 async function sendConfirmationEmail(r){
   try{
     const price=PRICE_NUMS[r.session_type]||(r.slot_label==="2-Player"?40:r.slot_label.includes("Group")?30:55);
-    await emailjs.send(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,{to_name:r.parent_name,to_email:r.email,player_name:r.player_name,session_date:r.slot_date,session_time:r.slot_time,session_type:r.slot_label,session_level:(r.skill_level||"").charAt(0).toUpperCase()+(r.skill_level||"").slice(1),session_price:price,location:"Freed Park, 6818 Shadyvilla Ln, Houston, TX 77055"});
+    if(!window.emailjs)return;await emailjs.send(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,{to_name:r.parent_name,to_email:r.email,player_name:r.player_name,session_date:r.slot_date,session_time:r.slot_time,session_type:r.slot_label,session_level:(r.skill_level||"").charAt(0).toUpperCase()+(r.skill_level||"").slice(1),session_price:price,location:"Freed Park, 6818 Shadyvilla Ln, Houston, TX 77055"});
   }catch(e){console.warn("Email failed:",e);}
 }
 
