@@ -2155,8 +2155,8 @@ async function renderWeek(idx){
     slots.forEach(sl=>{
       const row=document.createElement("div");row.className="slot-row";
       const key=`${dd}_${sl.id}`;
-      const confirmed=getOverlappingBookings(dd,sl.time,"confirmed");
-      const pending=getOverlappingBookings(dd,sl.time,"pending");
+      const confirmed=allRequests.filter(r=>r.slot_key===key&&r.status==="confirmed");
+      const pending=allRequests.filter(r=>r.slot_key===key&&r.status==="pending");
       // Capacity depends on session type of first booking
       const lockedSessionType=confirmed[0]?.session_type||pending[0]?.session_type||null;
       const cap=({two:2,group:6,individual:1,family_two:1,open:1})[lockedSessionType]||1;
@@ -2193,10 +2193,10 @@ async function renderWeek(idx){
       }else{
         open=true;row.className+=" open";
         // Per-coach availability
-        const jConfirmed=getOverlappingBookings(dd,sl.time,"confirmed","jason");
-        const jPending=getOverlappingBookings(dd,sl.time,"pending","jason");
-        const cConfirmed=getOverlappingBookings(dd,sl.time,"confirmed","ciri");
-        const cPending=getOverlappingBookings(dd,sl.time,"pending","ciri");
+        const jConfirmed=allRequests.filter(r=>r.slot_key===key&&r.status==="confirmed"&&(r.coach==="jason"||!r.coach));
+        const jPending=allRequests.filter(r=>r.slot_key===key&&r.status==="pending"&&(r.coach==="jason"||!r.coach));
+        const cConfirmed=allRequests.filter(r=>r.slot_key===key&&r.status==="confirmed"&&r.coach==="ciri");
+        const cPending=allRequests.filter(r=>r.slot_key===key&&r.status==="pending"&&r.coach==="ciri");
         const jOpen=jConfirmed.length===0&&jPending.length===0;
         const cOpen=cConfirmed.length===0&&cPending.length===0;
         const availCount=[jOpen,cOpen].filter(Boolean).length;
@@ -2610,8 +2610,9 @@ async function submitForm(){
   // Safety check: re-verify slot is still open before submitting (prevents race-condition double bookings)
   await loadAll();
   const selectedCoach=document.getElementById("selectedCoachField")?.value||"jason";
-  const existingConfirmed=getOverlappingBookings(dd,sl.time,"confirmed",selectedCoach);
-  const existingPending=getOverlappingBookings(dd,sl.time,"pending",selectedCoach);
+  const coachMatch=r=>selectedCoach==="ciri"?r.coach==="ciri":(r.coach==="jason"||!r.coach);
+  const existingConfirmed=allRequests.filter(r=>r.slot_key===key&&r.status==="confirmed"&&coachMatch(r));
+  const existingPending=allRequests.filter(r=>r.slot_key===key&&r.status==="pending"&&coachMatch(r));
   const existingType=existingConfirmed[0]?.session_type||existingPending[0]?.session_type||null;
   const slotCap=({two:2,group:6,individual:1,family_two:1,open:1})[existingType]||1;
   const stillAvailable=existingConfirmed.length<slotCap&&(existingConfirmed.length+existingPending.length)<slotCap;
