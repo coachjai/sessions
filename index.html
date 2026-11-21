@@ -525,12 +525,22 @@ body.light .cancel-policy-row{color:#9a3412;}
     </div>
     <div id="blockSection">
     <div class="card" style="padding:16px;">
-      <div class="fr" style="margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-        <div class="field" style="margin-bottom:0;flex:1;min-width:130px;"><label>Start Date</label><input type="date" id="blockDateInput"/></div>
-        <div class="field" style="margin-bottom:0;flex:1;min-width:130px;"><label>End Date <span style="font-weight:400;color:var(--text-dim)">(optional)</span></label><input type="date" id="blockDateEndInput"/></div>
-        <div class="field" style="margin-bottom:0;flex:1;min-width:130px;"><label>Reason</label><input type="text" id="blockReasonInput" placeholder="e.g. Out of town"/></div>
+      <!-- Block type toggle -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button id="blockTypeDay" class="abtn" style="flex:1;padding:10px;background:var(--red-l);color:var(--red-t);border:1px solid var(--red);font-size:12px;font-weight:700;border-radius:8px;" onclick="setBlockType('day')">🚫 Full Day</button>
+        <button id="blockTypeSlots" class="abtn" style="flex:1;padding:10px;background:var(--navy3);color:var(--text-mid);border:1px solid var(--border);font-size:12px;font-weight:700;border-radius:8px;" onclick="setBlockType('slots')">⏰ Specific Slots</button>
       </div>
-      <button class="btn-or" style="font-size:14px;padding:12px;margin-bottom:0;" onclick="addBlockedDate()">🚫 Block Date(s)</button>
+      <div class="fr" style="margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div class="field" style="margin-bottom:0;flex:1;min-width:130px;"><label>Date</label><input type="date" id="blockDateInput"/></div>
+        <div class="field" id="blockEndDateWrap" style="margin-bottom:0;flex:1;min-width:130px;"><label>End Date <span style="font-weight:400;color:var(--text-dim)">(optional)</span></label><input type="date" id="blockDateEndInput"/></div>
+        <div class="field" style="margin-bottom:0;flex:1;min-width:130px;"><label>Reason</label><input type="text" id="blockReasonInput" placeholder="e.g. Personal appointment"/></div>
+      </div>
+      <!-- Slot picker — shown only in Specific Slots mode -->
+      <div id="slotBlockPicker" style="display:none;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-mid);margin-bottom:8px;">Select slots to block:</div>
+        <div id="slotCheckboxes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
+      </div>
+      <button class="btn-or" style="font-size:14px;padding:12px;margin-bottom:0;" onclick="addBlockedDate()">🚫 Block</button>
     </div>
     <div id="blockedDatesList"><div style="font-size:13px;color:var(--text-dim);text-align:center;padding:16px;">No days blocked.</div></div>
     </div>
@@ -1865,13 +1875,67 @@ async function loadBlockedDates(){
 }
 
 function getBlockedDate(dd,checkCoach=null){
-  // A blocked date with coach="ciri" only blocks Ciri; null/undefined blocks all
+  // A blocked date with coach="ciri" only blocks Ciri; null/undefined blocks all.
+  // Slot-specific blocks (SLOTS: prefix) are skipped here — handled by getBlockedSlot.
   return blockedDates.find(b=>{
     if(b.blocked_date!==dd) return false;
-    if(!b.coach) return true; // null/undefined = blocks all coaches
+    if(!parseBlockEntry(b).isFull) return false; // skip slot-specific entries
+    if(!b.coach) return true;
     if(checkCoach) return b.coach===checkCoach;
     return true;
   })||null;
+}
+
+// ── Block type (full day vs specific slots) ──────────────────────────────
+let blockType='day';
+function setBlockType(type){
+  blockType=type;
+  const isSlots=type==='slots';
+  const btnDay=document.getElementById('blockTypeDay');
+  const btnSlots=document.getElementById('blockTypeSlots');
+  btnDay.style.background=isSlots?'var(--navy3)':'var(--red-l)';
+  btnDay.style.color=isSlots?'var(--text-mid)':'var(--red-t)';
+  btnDay.style.borderColor=isSlots?'var(--border)':'var(--red)';
+  btnSlots.style.background=isSlots?'rgba(244,160,42,.18)':'var(--navy3)';
+  btnSlots.style.color=isSlots?'#f4a02a':'var(--text-mid)';
+  btnSlots.style.borderColor=isSlots?'#f4a02a':'var(--border)';
+  document.getElementById('slotBlockPicker').style.display=isSlots?'':'none';
+  const endWrap=document.getElementById('blockEndDateWrap');
+  if(endWrap)endWrap.style.display=isSlots?'none':'';
+  if(isSlots){
+    const grid=document.getElementById('slotCheckboxes');
+    if(!grid.children.length){
+      STANDARD_SLOTS.forEach(sl=>{
+        const lbl=document.createElement('label');
+        lbl.style.cssText='display:flex;align-items:center;gap:8px;font-size:12px;color:var(--white);background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;';
+        lbl.innerHTML=`<input type="checkbox" value="${sl.id}" style="accent-color:var(--logo-gold2);width:14px;height:14px;flex-shrink:0;"> <span><strong>${sl.id}</strong> · ${sl.time}</span>`;
+        grid.appendChild(lbl);
+      });
+    }
+  }
+}
+
+// Parse a blocked_dates reason field — detects slot-specific blocks encoded as "SLOTS:A,B|reason"
+function parseBlockEntry(b){
+  const r=(b.reason||'');
+  if(r.startsWith('SLOTS:')){
+    const pipeIdx=r.indexOf('|');
+    const slotsPart=pipeIdx>-1?r.slice(6,pipeIdx):r.slice(6);
+    const displayReason=pipeIdx>-1?r.slice(pipeIdx+1):'Unavailable';
+    return{slots:slotsPart.split(',').map(s=>s.trim()).filter(Boolean),reason:displayReason,isFull:false};
+  }
+  return{slots:null,reason:r||'Unavailable',isFull:true};
+}
+
+// Returns reason string if the specific slot is blocked on this date, otherwise null
+function getBlockedSlot(dd,slotId,checkCoach=null){
+  for(const b of blockedDates){
+    if(b.blocked_date!==dd)continue;
+    if(checkCoach&&b.coach&&b.coach!==checkCoach)continue;
+    const p=parseBlockEntry(b);
+    if(!p.isFull&&p.slots&&p.slots.includes(slotId))return p.reason;
+  }
+  return null;
 }
 
 function toggleSection(sectionId,chevronId){
@@ -1885,10 +1949,34 @@ function toggleSection(sectionId,chevronId){
 
 async function addBlockedDate(){
   const dateStart=document.getElementById("blockDateInput").value;
-  const dateEnd=document.getElementById("blockDateEndInput")?.value||"";
   const reason=document.getElementById("blockReasonInput").value.trim()||"Unavailable";
-  if(!dateStart){alert("Please select a start date.");return;}
-  // Build list of dates to block
+  if(!dateStart){alert("Please select a date.");return;}
+
+  // ── Specific Slots mode ───────────────────────────────────────────────
+  if(blockType==='slots'){
+    const checked=[...document.querySelectorAll('#slotCheckboxes input:checked')].map(cb=>cb.value);
+    if(!checked.length){alert("Please select at least one slot to block.");return;}
+    const encodedReason=`SLOTS:${checked.join(',')}|${reason}`;
+    try{
+      const _bp={blocked_date:dateStart,reason:encodedReason};
+      if(currentCoach==="ciri") _bp.coach="ciri";
+      const res=await api("blocked_dates",{method:"POST",body:JSON.stringify(_bp)});
+      if(!res.ok){const e=await res.json();alert(e?.message||"Could not block slots");return;}
+      const saved=await res.json();
+      const newEntry=Array.isArray(saved)?saved[0]:{id:Date.now()+Math.random(),blocked_date:dateStart,reason:encodedReason};
+      blockedDates.push(newEntry);
+      blockedDates.sort((a,b)=>a.blocked_date.localeCompare(b.blocked_date));
+      document.getElementById("blockDateInput").value="";
+      document.getElementById("blockReasonInput").value="";
+      document.querySelectorAll('#slotCheckboxes input').forEach(cb=>cb.checked=false);
+      renderBlockedDatesList();renderWeek(+document.getElementById("weekSelect").value);renderCal();
+      showToast(`${checked.length} slot${checked.length>1?'s':''} blocked ✓`);
+    }catch(e){alert("Something went wrong.");}
+    return;
+  }
+
+  // ── Full Day mode ─────────────────────────────────────────────────────
+  const dateEnd=document.getElementById("blockDateEndInput")?.value||"";
   const datesToBlock=[];
   if(dateEnd&&dateEnd>dateStart){
     let cur=new Date(dateStart+"T12:00:00");
@@ -1939,11 +2027,15 @@ function renderBlockedDatesList(){
   }
   list.innerHTML="";
   blockedDates.forEach(b=>{
+    const p=parseBlockEntry(b);
     const d=document.createElement("div");
     d.className="req-item";
     d.style.flexDirection="row";d.style.alignItems="center";d.style.gap="12px";
     const dateStr=fmtLong(b.blocked_date);
-    d.innerHTML=`<div style="flex:1"><div class="ri-name">🚫 ${fmt(b.blocked_date)}</div><div class="ri-sub">${dateStr}</div><div class="ri-note" style="color:var(--logo-gold2)">📝 ${b.reason||"Unavailable"}</div></div><button class="abtn" style="background:var(--red-l);color:var(--red-t);border:1px solid var(--red);padding:8px 14px;" onclick="removeBlockedDate('${b.id}')">Unblock</button>`;
+    const coachTag=b.coach?` · <span style="color:var(--logo-gold2);">${b.coach==="ciri"?"Ciri only":"Jason only"}</span>`:"";
+    const icon=p.isFull?"🚫":"⏰";
+    const label=p.isFull?`${icon} ${fmt(b.blocked_date)} — Full Day`:`${icon} ${fmt(b.blocked_date)} — Slots ${p.slots.join(", ")}`;
+    d.innerHTML=`<div style="flex:1"><div class="ri-name">${label}${coachTag}</div><div class="ri-sub">${dateStr}</div><div class="ri-note" style="color:var(--logo-gold2)">📝 ${p.reason}</div></div><button class="abtn" style="background:var(--red-l);color:var(--red-t);border:1px solid var(--red);padding:8px 14px;" onclick="removeBlockedDate('${b.id}')">Unblock</button>`;
     list.appendChild(d);
   });
 }
@@ -2174,7 +2266,7 @@ async function renderWeek(idx){
       const isPendingHold=!isDualCoach&&(!isFull&&!partiallyBooked&&pending.length>=cap);
       const firstLevel=confirmed[0]?.skill_level||"";
       let bc=sl.bc,pill="",extra="",open=false;
-      const reason=getBlocked(sl.id,di,w.mon);
+      const reason=getBlocked(sl.id,di,w.mon)||getBlockedSlot(dd,sl.id);
       if(reason){bc="bb";pill=`<span class="spill p-blk">Unavailable</span>`;extra=`<div class="sconflict">🚫 ${reason}</div>`;}
       else if(isFull){
         bc="bc-ok";
