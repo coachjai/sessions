@@ -2157,13 +2157,21 @@ async function renderWeek(idx){
       const key=`${dd}_${sl.id}`;
       const confirmed=allRequests.filter(r=>r.slot_key===key&&r.status==="confirmed");
       const pending=allRequests.filter(r=>r.slot_key===key&&r.status==="pending");
-      // Capacity depends on session type of first booking
+      // Per-coach availability (computed early for dual-coach slot logic)
+      const jConfirmed=allRequests.filter(r=>r.slot_key===key&&r.status==="confirmed"&&(r.coach==="jason"||!r.coach));
+      const jPending=allRequests.filter(r=>r.slot_key===key&&r.status==="pending"&&(r.coach==="jason"||!r.coach));
+      const cConfirmed=allRequests.filter(r=>r.slot_key===key&&r.status==="confirmed"&&r.coach==="ciri");
+      const cPending=allRequests.filter(r=>r.slot_key===key&&r.status==="pending"&&r.coach==="ciri");
+      const jFull=jConfirmed.length>0;const cFull=cConfirmed.length>0;
+      const jOpen=!jFull&&jPending.length===0;const cOpen=!cFull&&cPending.length===0;
+      // Dual-coach open slots: capacity 2 (1 per coach); isFull only when both are taken
+      const isDualCoach=sl.type==="open";
       const lockedSessionType=confirmed[0]?.session_type||pending[0]?.session_type||null;
-      const cap=({two:2,group:6,individual:1,family_two:1,open:1})[lockedSessionType]||1;
-      const isFull=confirmed.length>=cap;
-      const spotsLeft=cap-confirmed.length;
-      const partiallyBooked=confirmed.length>0&&!isFull; // 2-player/group with room still
-      const isPendingHold=!isFull&&!partiallyBooked&&pending.length>=cap;
+      const cap=isDualCoach?2:({two:2,group:6,individual:1,family_two:1,open:1})[lockedSessionType]||1;
+      const isFull=isDualCoach?(jFull&&cFull):(confirmed.length>=cap);
+      const spotsLeft=isDualCoach?[jOpen,cOpen].filter(Boolean).length:(cap-confirmed.length);
+      const partiallyBooked=isDualCoach?((jFull||cFull)&&!(jFull&&cFull)):(confirmed.length>0&&!isFull);
+      const isPendingHold=!isDualCoach&&(!isFull&&!partiallyBooked&&pending.length>=cap);
       const firstLevel=confirmed[0]?.skill_level||"";
       let bc=sl.bc,pill="",extra="",open=false;
       const reason=getBlocked(sl.id,di,w.mon);
@@ -2171,19 +2179,36 @@ async function renderWeek(idx){
       else if(isFull){
         bc="bc-ok";
         pill=`<span class="spill p-confirmed">✓ Booked</span>`;
-        extra=`<div class="sconfirmed">✅ ${confirmed.map(r=>r.player_name).join(", ")}</div>`;
+        if(isDualCoach&&jConfirmed.length&&cConfirmed.length){
+          extra=`<div class="sconfirmed">👨‍🏫 ${jConfirmed[0].player_name} &nbsp;·&nbsp; 👩‍🏫 ${cConfirmed[0].player_name}</div>`;
+        }else{
+          extra=`<div class="sconfirmed">✅ ${confirmed.map(r=>r.player_name).join(", ")}</div>`;
+        }
         if(firstLevel)extra+=levelBadge(firstLevel);
         row.className+=" confirmed-row tappable";
         row.addEventListener("click",()=>openPayPrompt(confirmed,sl,dd));
       }else if(partiallyBooked){
-        // 2-player or group slot with spots still available
-        bc="bc-ok";open=true;
-        const typeLabel=TYPE_LABELS[lockedSessionType]||lockedSessionType;
-        pill=`<span class="spill p-open" style="background:rgba(42,180,100,.18);color:#4cd68a;">${confirmed.length}/${cap} · Join</span>`;
-        extra=`<div class="sconfirmed" style="margin-bottom:2px;">✅ ${confirmed.map(r=>r.player_name).join(", ")}</div>`;
-        extra+=`<div style="font-size:11px;color:#4cd68a;font-weight:700;">${spotsLeft} spot${spotsLeft>1?'s':''} left · ${typeLabel} session</div>`;
-        row.className+=" open";
-        row.addEventListener("click",()=>openModal(sl,day,dd));
+        open=true;row.className+=" open";
+        if(isDualCoach){
+          // One coach taken, one open
+          bc="bc-ok";
+          pill=`<span class="spill p-open">OPEN · 1</span>`;
+          const jTag=jFull?`<span style="color:#e05555;font-weight:600;">👨‍🏫 Jason ✓</span>`:`<span style="color:var(--text-mid);">👨‍🏫 Jason</span>`;
+          const cTag=cFull?`<span style="color:#e05555;font-weight:600;">👩‍🏫 Ciri ✓</span>`:`<span style="color:var(--text-mid);">👩‍🏫 Ciri</span>`;
+          extra=`<div style="font-size:10px;margin-top:3px;">${jTag} &nbsp;·&nbsp; ${cTag}</div>`;
+          row.addEventListener("click",()=>{
+            if(jOpen) openModal(sl,day,dd,"jason");
+            else if(cOpen) openModal(sl,day,dd,"ciri");
+          });
+        }else{
+          // 2-player or group slot with spots still available
+          bc="bc-ok";
+          const typeLabel=TYPE_LABELS[lockedSessionType]||lockedSessionType;
+          pill=`<span class="spill p-open" style="background:rgba(42,180,100,.18);color:#4cd68a;">${confirmed.length}/${cap} · Join</span>`;
+          extra=`<div class="sconfirmed" style="margin-bottom:2px;">✅ ${confirmed.map(r=>r.player_name).join(", ")}</div>`;
+          extra+=`<div style="font-size:11px;color:#4cd68a;font-weight:700;">${spotsLeft} spot${spotsLeft>1?'s':''} left · ${typeLabel} session</div>`;
+          row.addEventListener("click",()=>openModal(sl,day,dd));
+        }
       }else if(isPendingHold){
         bc="bp";
         pill=`<span class="spill" style="background:rgba(244,160,42,.18);color:#f4a02a;">⏳ Pending</span>`;
@@ -2192,23 +2217,18 @@ async function renderWeek(idx){
         row.addEventListener("click",()=>alert(`This slot has a pending request from ${pending[0].player_name} awaiting coach confirmation. Please check back soon or choose another slot.`));
       }else{
         open=true;row.className+=" open";
-        // Per-coach availability
-        const jConfirmed=allRequests.filter(r=>r.slot_key===key&&r.status==="confirmed"&&(r.coach==="jason"||!r.coach));
-        const jPending=allRequests.filter(r=>r.slot_key===key&&r.status==="pending"&&(r.coach==="jason"||!r.coach));
-        const cConfirmed=allRequests.filter(r=>r.slot_key===key&&r.status==="confirmed"&&r.coach==="ciri");
-        const cPending=allRequests.filter(r=>r.slot_key===key&&r.status==="pending"&&r.coach==="ciri");
-        const jOpen=jConfirmed.length===0&&jPending.length===0;
-        const cOpen=cConfirmed.length===0&&cPending.length===0;
-        const availCount=[jOpen,cOpen].filter(Boolean).length;
-        if(availCount===2){
+        // Both coaches have no confirmed bookings (may have pending)
+        if(jOpen&&cOpen){
           pill=`<span class="spill p-open">OPEN · 2</span>`;
           extra=`<div style="font-size:10px;color:var(--text-mid);margin-top:3px;">👨‍🏫 Jason &nbsp;·&nbsp; 👩‍🏫 Ciri</div>`;
         }else if(jOpen){
-          pill=`<span class="spill p-open">OPEN</span>`;
-          extra=`<div style="font-size:10px;color:var(--text-mid);margin-top:3px;">👨‍🏫 Coach Jason</div>`;
+          // Jason free, Ciri has pending
+          pill=`<span class="spill p-open">OPEN · 1</span>`;
+          extra=`<div style="font-size:10px;margin-top:3px;"><span style="color:var(--text-mid);">👨‍🏫 Jason</span> &nbsp;·&nbsp; <span style="color:#f4a02a;font-weight:600;">👩‍🏫 Ciri ⏳</span></div>`;
         }else if(cOpen){
-          pill=`<span class="spill p-open">OPEN</span>`;
-          extra=`<div style="font-size:10px;color:var(--text-mid);margin-top:3px;">👩‍🏫 Coach Ciri</div>`;
+          // Ciri free, Jason has pending
+          pill=`<span class="spill p-open">OPEN · 1</span>`;
+          extra=`<div style="font-size:10px;margin-top:3px;"><span style="color:#f4a02a;font-weight:600;">👨‍🏫 Jason ⏳</span> &nbsp;·&nbsp; <span style="color:var(--text-mid);">👩‍🏫 Ciri</span></div>`;
         }else{
           pill=`<span class="spill" style="background:rgba(244,160,42,.18);color:#f4a02a;">⏳ Pending</span>`;
           extra=`<div style="font-size:11px;color:#f4a02a;font-weight:700;margin-top:2px;">Request pending — awaiting confirmation</div>`;
